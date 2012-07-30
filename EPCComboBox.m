@@ -2,7 +2,6 @@
 //  EPCComboBox.m
 //
 //  Created by Everton Postay Cunha on 28/06/11.
-//  Copyright 2011 Everton Postay Cunha. All rights reserved.
 //
 
 #import "EPCComboBox.h"
@@ -10,7 +9,7 @@
 
 @implementation EPCComboBox
 
-@synthesize delegate, indexOfSelectedRow, selectedView, listIsOpen;
+@synthesize delegate, indexOfSelectedRow, selectedView, open;
 
 #pragma mark - Life Cycle
 
@@ -18,7 +17,7 @@
 	
 	// ADD THE ARROW BUTTON
 	
-	button = [delegate buttonForComboBox:self];
+	button = [delegate comboBoxButtonForComboBox:self];
 	button.frame = CGRectMake(self.bounds.size.width - button.frame.size.width, 0, button.frame.size.width, button.frame.size.height);
 	[button addTarget:self action:@selector(selectedButton:) forControlEvents:UIControlEventTouchUpInside];
 	[button addTarget:self action:@selector(highlightButton:) forControlEvents:UIControlEventTouchDown];
@@ -62,6 +61,9 @@
 - (void)dealloc
 {
 	[tableView release];
+	if (shadowView) {
+		[shadowView release];
+	}
     [super dealloc];
 }
 
@@ -106,17 +108,25 @@
 #pragma mark - Private
 
 - (void)hideList {
-	listIsOpen = NO;
+	open = NO;
 	
 	self.selectedView = [delegate comboBox:self viewForSelectedItemWhileOpen:NO];
+	[shadowView removeFromSuperview];
 	[tableView removeFromSuperview];
 }
 
 - (void)showList {
-	listIsOpen = YES;
+	open = YES;
 	
 	self.selectedView = [delegate comboBox:self viewForSelectedItemWhileOpen:YES];
+	[self.superview bringSubviewToFront:self];
 	[self.superview addSubview:tableView];
+	
+	if (!shadowView) {
+		shadowView = [[ComboListShadowView alloc] initWithFrame:self.superview.bounds];
+		shadowView.comboBoxView = self;
+	}
+	[self.superview insertSubview:shadowView belowSubview:self];
 }
 
 #pragma mark - Actions
@@ -125,7 +135,7 @@
 	
 	button.highlighted = NO;
 	
-	self.listIsOpen ? [self hideList] : [self showList];
+	open ? [self hideList] : [self showList];
 }
 
 - (void)highlightButton:(id)sender {
@@ -141,7 +151,7 @@
 #pragma mark - Public
 
 - (void)selectRowAtIndex:(int)index {
-	
+	NSLog(@"%s", __PRETTY_FUNCTION__);
 	NSIndexPath *ip = [NSIndexPath indexPathForRow:index inSection:0];
 	[self tableView:tableView didSelectRowAtIndexPath:ip];
 }
@@ -168,4 +178,34 @@
 	[tableView reloadData];
 }
 
+- (void)close {
+	if (open) {
+		[self hideList];
+	}
+}
+
+- (void)open {
+	if (!open) {
+		[self showList];
+	}
+}
+
+- (void)touchedShadow {
+	[self hideList];
+}
+
 @end
+
+
+
+@implementation ComboListShadowView
+
+@synthesize comboBoxView;
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+	[self.comboBoxView performSelector:@selector(touchedShadow)];
+}
+
+@end
+
+
