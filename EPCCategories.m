@@ -51,12 +51,13 @@
 @implementation UIWebView (EPCCategories)
 
 - (UIScrollView*)webScrollView {
+	
 	UIScrollView *webScrollView = nil;
 	if ([self respondsToSelector:@selector(scrollView)]) {
 		webScrollView = self.scrollView;
 	}
 	else {
-		for (id sub in webScrollView.subviews) {
+		for (id sub in self.subviews) {
 			if ([sub isKindOfClass:[UIScrollView class]]) {
 				webScrollView = sub;
 				break;
@@ -72,6 +73,15 @@
 
 - (void)adjustToHeight {
 	UIScrollView *webScrollView = [self webScrollView];
-	self.frameHeight = webScrollView.contentSize.height;
+	if (webScrollView)
+		self.frameHeight = webScrollView.contentSize.height;
+}
+
+-(void)ajustToHeightAndStopBouncing {
+	UIScrollView *webScrollView = [self webScrollView];
+	if (webScrollView) {
+		self.frameHeight = webScrollView.contentSize.height;
+		webScrollView.bounces = NO;
+	}
 }
 @end

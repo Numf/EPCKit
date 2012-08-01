@@ -24,4 +24,6 @@
 @interface UIWebView (EPCCategories)
 - (void)adjustToHeight;
 - (void)disableScroll;
+- (UIScrollView*)webScrollView;
+- (void)ajustToHeightAndStopBouncing;
 @end
