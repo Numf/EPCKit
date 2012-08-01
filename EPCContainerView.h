@@ -10,7 +10,7 @@
 @protocol ContainerViewDelegate <NSObject>
 @optional
 - (void)container:(EPCContainerView*)container pushedViewController:(UIViewController*)pushedViewController animated:(BOOL)animated;
-- (void)container:(EPCContainerView*)container poppedViewController:(UIViewController*)poppedViewController animated:(BOOL)animated;
+- (void)container:(EPCContainerView*)container poppedToViewController:(UIViewController*)poppedToViewController animated:(BOOL)animated;
 @end
 
 

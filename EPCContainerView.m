@@ -21,64 +21,11 @@
 }
 
 
-#pragma mark View Appear
--(void)callViewWillAppearWithoutAnimation:(UIViewController *)vc
-{
-    if(SYSTEM_VERSION_LESS_THAN(@"5.0"))
-        [vc viewWillAppear:NO];
-}
--(void)callViewWillAppearWithAnimation:(UIViewController *)vc
-{
-    if(SYSTEM_VERSION_LESS_THAN(@"5.0"))
-        [vc viewWillAppear:YES];
-}
-
--(void)callViewDidAppearWithoutAnimation:(UIViewController *)vc
-{
-    if(SYSTEM_VERSION_LESS_THAN(@"5.0"))    
-        [vc viewDidAppear:NO];
-}
--(void)callViewDidAppearWithAnimation:(UIViewController *)vc
-{
-    if(SYSTEM_VERSION_LESS_THAN(@"5.0"))
-        [vc viewDidAppear:YES];
-}
-
-#pragma mark View Disappear
--(void)callViewWillDisappearWithoutAnimation:(UIViewController *)vc
-{
-    if(SYSTEM_VERSION_LESS_THAN(@"5.0"))    
-        [vc viewWillDisappear:NO];
-}
--(void)callViewWillDisappearWithAnimation:(UIViewController *)vc
-{
-    if(SYSTEM_VERSION_LESS_THAN(@"5.0"))
-        [vc viewWillDisappear:YES];
-}
-
--(void)callViewDidDisappearWithoutAnimation:(UIViewController *)vc
-{
-    if(SYSTEM_VERSION_LESS_THAN(@"5.0"))
-        [vc viewDidDisappear:NO];
-}
--(void)callViewDidDisappearWithAnimation:(UIViewController *)vc
-{
-    if(SYSTEM_VERSION_LESS_THAN(@"5.0"))
-        [vc viewDidDisappear:YES];
-}
-
-
-
 -(void)pushNewRootViewController:(UIViewController *)newViewController animated:(BOOL)animated {
 	NSAssert((newViewController != nil), @"Trying to push nil");
 	
 	if (!pushedViewControllers)
 		pushedViewControllers = [[NSMutableArray array] retain];
-	
-	
-    UIViewController *fromViewController = [[pushedViewControllers lastObject] retain];
-    [fromViewController performSelector:@selector(release) withObject:nil afterDelay:0.4f];
-    NSLog(@"******* fromview: %@", fromViewController);
     
     [pushedViewControllers removeAllObjects];
 	[pushedViewControllers addObject:newViewController];
@@ -88,21 +35,12 @@
 	
 	if (!animated) 
     {
-		[self callViewWillDisappearWithoutAnimation:fromViewController];
         
 		for (UIView *sub in self.subviews)
 			[sub removeFromSuperview];
-        
-        [self callViewDidDisappearWithoutAnimation:fromViewController];
-        
-        [self callViewWillAppearWithoutAnimation:newViewController];
 		[self addSubview:newViewController.view];
-        [self callViewDidAppearWithoutAnimation:newViewController];
 	}
 	else {
-		
-        [self callViewWillAppearWithAnimation:newViewController];
-        [self callViewWillDisappearWithAnimation:fromViewController];
         
         [newViewController.view setPointX:self.frame.size.width];
 		[self addSubview:newViewController.view];
@@ -117,8 +55,7 @@
 				[sub setPointX:-sub.frame.size.width];
 			}
 		}
-        [self performSelector:@selector(callViewDidAppearWithAnimation:) withObject:newViewController afterDelay:0.4f];
-        [self performSelector:@selector(callViewDidDisappearWithAnimation:) withObject:fromViewController afterDelay:0.39f];
+
 		[newViewController.view setPointX:0];
 		[UIView commitAnimations];        
 	}
@@ -143,33 +80,20 @@
     
 	if (!pushedViewControllers)
 		pushedViewControllers = [[NSMutableArray array] retain];
-	
-    UIViewController *fromViewController = [pushedViewControllers lastObject];
     
 	[pushedViewControllers addObject:newViewController];
     
-    
-	
 	if (self.autoresizesSubviews)
 		newViewController.view.frame = self.bounds;
 	
 	if (!animated) {
-        [self callViewWillDisappearWithoutAnimation:fromViewController];
 		for (UIView *sub in self.subviews)
 			[sub removeFromSuperview];
-        [self callViewDidDisappearWithoutAnimation:fromViewController];
-		
-        [self callViewWillAppearWithoutAnimation:newViewController];
 		[self addSubview:newViewController.view];
-        [self callViewDidAppearWithoutAnimation:newViewController];
 	}
 	else {
 		[newViewController.view setPointX:self.frame.size.width];
 		[self addSubview:newViewController.view];
-        
-        [self callViewWillDisappearWithoutAnimation:fromViewController];
-        [self callViewWillAppearWithAnimation:newViewController];
-        
 		
 		[UIView beginAnimations:@"push" context:nil];
 		[UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
@@ -182,8 +106,6 @@
 			}
 		}
         
-        [self performSelector:@selector(callViewDidAppearWithAnimation:) withObject:newViewController afterDelay:0.4f];
-        [self performSelector:@selector(callViewDidDisappearWithAnimation:) withObject:fromViewController afterDelay:0.4f];
 		[newViewController.view setPointX:0];
 		[UIView commitAnimations];
 		
@@ -197,27 +119,16 @@
 	
 	if (![pushedViewControllers containsObject:toViewController])
 		[NSException raise:@"Exception!" format:@"Trying to pop a view that wasn't push in the container."];
-    
-    UIViewController *fromViewController = [pushedViewControllers lastObject];
 	
 	if (!animated) 
-    {        
-        [self callViewWillDisappearWithoutAnimation:fromViewController];
-        
+    {
 		for (UIView *sub in self.subviews)
 			[sub removeFromSuperview];
-                
-        [self callViewDidDisappearWithoutAnimation:fromViewController];
 		
-        [self callViewWillAppearWithoutAnimation:toViewController];
 		[self addSubview:toViewController.view];
-        [self callViewDidAppearWithoutAnimation:toViewController];
 	}
 	else 
     {
-        
-        [self callViewWillDisappearWithAnimation:fromViewController];        
-        [self callViewWillAppearWithAnimation:toViewController];
         
 		[toViewController.view setPointX:-toViewController.view.frame.size.width];
 		[self addSubview:toViewController.view];
@@ -237,16 +148,13 @@
 		[UIView commitAnimations];
 	}
     
-
-    [self callViewDidDisappearWithAnimation:fromViewController];
-    
     while([pushedViewControllers lastObject] != toViewController)
     {
 		[pushedViewControllers removeLastObject];
     }
 	
-	if ([self.delegate respondsToSelector:@selector(container:poppedViewController:animated:)])
-		[self.delegate container:self poppedViewController:toViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(container:poppedToViewController:animated:)])
+		[self.delegate container:self poppedToViewController:toViewController animated:animated];
 	
 }
 
@@ -254,30 +162,19 @@
 {
 	assert([pushedViewControllers count] > 0);
 	
-	UIViewController *fromViewController = [[pushedViewControllers lastObject] retain];
-	[fromViewController performSelector:@selector(release) withObject:nil afterDelay:0.4f];    
-	
 	[pushedViewControllers removeLastObject];
 	UIViewController *toViewController = [pushedViewControllers lastObject];
 	
 	if (!animated) 
     {        
-        [self callViewWillDisappearWithoutAnimation:fromViewController];
         
 		for (UIView *sub in self.subviews)
 			[sub removeFromSuperview];
-		
-        [self callViewDidDisappearWithoutAnimation:fromViewController];
         
-        
-        [self callViewWillAppearWithoutAnimation:toViewController];
 		[self addSubview:toViewController.view];
-        [self callViewDidAppearWithoutAnimation:toViewController];
 	}
 	else 
     {
-        [self callViewWillDisappearWithAnimation:fromViewController];
-        [self callViewWillAppearWithoutAnimation:toViewController];
         
 		[toViewController.view setPointX:-toViewController.view.frame.size.width];
 		[self addSubview:toViewController.view];
@@ -292,14 +189,12 @@
 				[sub setPointX:self.frame.size.width];
 			}
 		}
-        [self performSelector:@selector(callViewDidAppearWithAnimation:) withObject:toViewController afterDelay:0.4f];
-        [self performSelector:@selector(callViewDidDisappearWithAnimation:) withObject:fromViewController afterDelay:0.39f];
 		[toViewController.view setPointX:0];
 		[UIView commitAnimations];
 	}
 	
-	if ([self.delegate respondsToSelector:@selector(container:poppedViewController:animated:)])
-		[self.delegate container:self poppedViewController:toViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(container:poppedToViewController:animated:)])
+		[self.delegate container:self poppedToViewController:toViewController animated:animated];
 }
 
 -(void)popToRootViewControllerAnimated:(BOOL)animated {
@@ -308,9 +203,6 @@
 		return;
 	}
 	
-	UIViewController *fromViewController = [[pushedViewControllers lastObject] retain];
-	[fromViewController performSelector:@selector(release) withObject:nil afterDelay:0.4f];
-	
 	while ([pushedViewControllers count] > 1)
 		[pushedViewControllers removeLastObject];
 	
@@ -318,22 +210,14 @@
 	
 	
 	if (!animated) {
-        
-        [self callViewWillDisappearWithoutAnimation:fromViewController];
 
 		for (UIView *sub in self.subviews)
 			[sub removeFromSuperview];
         
-        [self callViewDidDisappearWithoutAnimation:fromViewController];
-		
-        [self callViewWillAppearWithoutAnimation:toViewController];
 		[self addSubview:toViewController.view];
-        [self callViewDidAppearWithoutAnimation:toViewController];
 	}
 	else 
     {
-        [self callViewWillDisappearWithAnimation:fromViewController];        
-        [self callViewWillAppearWithAnimation:toViewController];
         
 		[toViewController.view setPointX:-toViewController.view.frame.size.width];
 		[self addSubview:toViewController.view];
@@ -348,14 +232,13 @@
 				[sub setPointX:self.frame.size.width];
 			}
 		}
-        [self performSelector:@selector(callViewDidAppearWithAnimation:) withObject:toViewController afterDelay:0.4f];
-        [self performSelector:@selector(callViewDidDisappearWithAnimation:) withObject:fromViewController afterDelay:0.39f];
+
 		[toViewController.view setPointX:0];
 		[UIView commitAnimations];
 	}
 	
-	if ([self.delegate respondsToSelector:@selector(container:poppedViewController:animated:)])
-		[self.delegate container:self poppedViewController:toViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(container:poppedToViewController:animated:)])
+		[self.delegate container:self poppedToViewController:toViewController animated:animated];
 }
 
 
