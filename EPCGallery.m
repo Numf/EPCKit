@@ -1,7 +1,7 @@
 //
 //  EPCGallery
 //
-//  Created by Everton Postay Cunha on 23/07/12.
+//  Created by Everton Cunha on 23/07/12.
 //
 
 #import "EPCGallery.h"
@@ -12,6 +12,7 @@
 	UIScrollView *pvtScrollView;
 	UIView *zoomingView;
 	UITapGestureRecognizer *doubleTapGesture;
+	int numberOfPages;
 }
 @end
 
@@ -54,18 +55,21 @@
 		minimumZoomScale = 1;
 	if (maximumZoomScale == 0)
 		maximumZoomScale = 1;
-		
+	
 	pvtScrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
 	pvtScrollView.pagingEnabled = YES;
 	pvtScrollView.delegate = self;
 	pvtScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
 	pvtScrollView.showsHorizontalScrollIndicator = pvtScrollView.showsVerticalScrollIndicator = NO;
-	[pvtScrollView setContentSize:CGSizeMake([self.delegate epcGalleryNumberOfPages:self]*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
+	numberOfPages = [self.delegate epcGalleryNumberOfPages:self];
+	[pvtScrollView setContentSize:CGSizeMake(numberOfPages*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
 	pvtScrollView.maximumZoomScale = maximumZoomScale;
 	pvtScrollView.minimumZoomScale = minimumZoomScale;
 	[self insertSubview:pvtScrollView atIndex:0];
 	[pvtScrollView release];
-	[self loadContentsForPage:0];
+	
+	if (numberOfPages > 0)
+		[self loadContentsForPage:0];
 	
 	self.doubleTapToZoom = doubleTapToZoom;
 }
@@ -78,7 +82,8 @@
 		if (view)
 			[pvtScrollView addSubview:view];
 		
-		[self performSelectorInBackground:@selector(loadContentsForPageThread:) withObject:[NSNumber numberWithInt:page]];
+		if (numberOfPages > 1)
+			[self performSelectorInBackground:@selector(loadContentsForPageThread:) withObject:[NSNumber numberWithInt:page]];
 	}
 }
 
@@ -104,7 +109,7 @@
 		pageBefore--;
 	}
 	
-	while (pageAfter <= page + self.loadLimit) {
+	while (pageAfter <= page + self.loadLimit && pageAfter < numberOfPages) {
 		
 		UIView *view = [self requestViewForPage:pageAfter];
 		if (view) {
@@ -128,7 +133,7 @@
 - (void)addSubviews:(NSArray*)viewsToAdd {
 	for (UIView *view in viewsToAdd) {
 		if (![pvtScrollView viewWithTag:view.tag] && view != zoomingView) {
-				[pvtScrollView insertSubview:view atIndex:0];
+			[pvtScrollView insertSubview:view atIndex:0];
 		}
 	}
 }
@@ -175,9 +180,11 @@
 	zoomingView = nil;
 	
 	[self unload];
-
-	[pvtScrollView setContentSize:CGSizeMake([self.delegate epcGalleryNumberOfPages:self]*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
-	[self loadContentsForPage:self.currentPage];
+	
+	numberOfPages = [self.delegate epcGalleryNumberOfPages:self];
+	[pvtScrollView setContentSize:CGSizeMake(numberOfPages*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
+	if (numberOfPages > 0)
+		[self loadContentsForPage:self.currentPage];
 	pvtScrollView.userInteractionEnabled = YES;
 }
 
@@ -193,7 +200,8 @@
 				[view removeFromSuperview];
 		}
 	}
-	[pvtScrollView setContentSize:CGSizeMake([self.delegate epcGalleryNumberOfPages:self]*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
+	numberOfPages = [self.delegate epcGalleryNumberOfPages:self];
+	[pvtScrollView setContentSize:CGSizeMake(numberOfPages*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
 	pvtScrollView.userInteractionEnabled = YES;
 }
 
@@ -211,7 +219,7 @@
 }
 
 - (void)unloadWithPage:(int)page isAutoUnload:(BOOL)isAutoUnload {
-
+	
 	int limit = self.unloadLimit;
 	if (isAutoUnload)
 		limit = self.autoUnloadLimit;
@@ -293,7 +301,8 @@
 -(void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale {
 	if (scale == 1.0f) {
 		scrollView.pagingEnabled = YES;
-		[scrollView setContentSize:CGSizeMake([self.delegate epcGalleryNumberOfPages:self]*pvtScrollView.frame.size.width, scrollView.frame.size.height)];
+		numberOfPages = [self.delegate epcGalleryNumberOfPages:self];
+		[scrollView setContentSize:CGSizeMake(numberOfPages*pvtScrollView.frame.size.width, scrollView.frame.size.height)];
 		@synchronized(pvtScrollView) {
 			NSArray *subviews = [NSArray arrayWithArray:scrollView.subviews];
 			for (UIView *sub in subviews)
