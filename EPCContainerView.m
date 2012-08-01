@@ -144,7 +144,6 @@
 			}
 		}
 		[toViewController.view setPointX:0];
-        [self performSelector:@selector(callViewDidAppearWithAnimation:) withObject:toViewController afterDelay:0.4f];
 		[UIView commitAnimations];
 	}
     
