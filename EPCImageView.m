@@ -95,8 +95,6 @@
 }
 
 -(void)requestFailed:(ASIHTTPRequest *)_request {
-	if (!self.delegate)
-		return;
 	
 	if (_request.otherData == currentURL) {
 		[self setImage:nil];
@@ -106,9 +104,6 @@
 }
 
 -(void)requestFinished:(ASIHTTPRequest *)_request {
-	
-	if (!self.delegate)
-		return;
 	
 	NSData *data = [_request responseData];
 	UIImage *newImage = nil;
