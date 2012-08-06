@@ -22,10 +22,23 @@
 	NSURL *currentURL;
 }
 
-- (void)setImageByURL:(NSURL*)url;
-
+/*
+ Default singleton to cache the downloaded images.
+ */
 + (NSCache*)imageCache;
 
+/*
+ Set the URL from the image to be loaded. Set to nil when you want to clear the current image.
+ */
+- (void)setImageByURL:(NSURL*)url;
+
+/*
+ You can set your own cache. It also should work with NSMutableDictionary.
+ */
 @property (nonatomic, assign) NSCache *imageCache;
+
+/*
+ The delegate.
+ */
 @property (nonatomic, assign) IBOutlet id<EPCImageViewDelegate> delegate;
 @end
