@@ -27,6 +27,11 @@
 - (void)loadContentsForPage:(int)page;
 
 /*
+ Recalculates the content size.
+ */
+- (void)refreshContentSize;
+
+/*
  Remove all views and loads the current and loadLimit.
  */
 - (void)reload;
@@ -72,7 +77,6 @@
  */
 @property (nonatomic, assign) IBOutlet id<EPCGalleryDelegate> delegate;
 
-
 /*
  Enables/disables double tap to zoom. Default is NO.
  */
@@ -92,4 +96,10 @@
  Enables Zooming.
  */
 @property (nonatomic, readwrite) float maximumZoomScale, minimumZoomScale;
+
+/*
+ The private UIScrollView. Use for debugging and don't mess with it.
+ */
+@property (nonatomic, readonly) UIScrollView *scrollView;
+
 @end

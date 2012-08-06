@@ -345,6 +345,27 @@
 	return frameToCenter;
 }
 
+-(void)setDoubleTapToZoom:(BOOL)flag {
+	doubleTapToZoom = flag;
+	if (doubleTapToZoom && !doubleTapGesture && pvtScrollView) {
+		doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+		[doubleTapGesture setNumberOfTapsRequired:2];
+		[pvtScrollView addGestureRecognizer:doubleTapGesture];
+		[doubleTapGesture release];
+	}
+	else if (!doubleTapToZoom && doubleTapGesture && pvtScrollView) {
+		[pvtScrollView removeGestureRecognizer:doubleTapGesture];
+		doubleTapGesture = nil;
+	}
+}
+
+- (void)handleDoubleTap:(UIGestureRecognizer *)gestureRecognizer {
+    if(pvtScrollView.zoomScale > pvtScrollView.minimumZoomScale)
+        [pvtScrollView setZoomScale:pvtScrollView.minimumZoomScale animated:YES];
+    else
+        [pvtScrollView setZoomScale:pvtScrollView.maximumZoomScale animated:YES];
+}
+
 #pragma mark - Others
 
 -(int)currentPage {
@@ -366,25 +387,13 @@
 	[pvtScrollView setContentOffset:CGPointMake(page*pvtScrollView.bounds.size.width, 0) animated:animated];
 }
 
--(void)setDoubleTapToZoom:(BOOL)flag {
-	doubleTapToZoom = flag;
-	if (doubleTapToZoom && !doubleTapGesture && pvtScrollView) {
-		doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
-		[doubleTapGesture setNumberOfTapsRequired:2];
-		[pvtScrollView addGestureRecognizer:doubleTapGesture];
-		[doubleTapGesture release];
-	}
-	else if (!doubleTapToZoom && doubleTapGesture && pvtScrollView) {
-		[pvtScrollView removeGestureRecognizer:doubleTapGesture];
-		doubleTapGesture = nil;
-	}
+-(UIScrollView*)scrollView {
+	return pvtScrollView;
 }
 
-- (void)handleDoubleTap:(UIGestureRecognizer *)gestureRecognizer {
-    if(pvtScrollView.zoomScale > pvtScrollView.minimumZoomScale)
-        [pvtScrollView setZoomScale:pvtScrollView.minimumZoomScale animated:YES];
-    else
-        [pvtScrollView setZoomScale:pvtScrollView.maximumZoomScale animated:YES];
+-(void)refreshContentSize {
+	numberOfPages = [self.delegate epcGalleryNumberOfPages:self];
+	[pvtScrollView setContentSize:CGSizeMake(numberOfPages*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
 }
 
 @end
