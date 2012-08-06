@@ -38,17 +38,21 @@
 }
 
 -(void)setImageByURL:(NSURL *)url {
+	
+	[request clearDelegatesAndCancel];
+	[request release];
+	request = nil;
+	
+	[currentURL release];
+	currentURL = nil;
+	
+	self.image = nil;
+	
+	[actView stopAnimating];
+	
 	if (url) {
-		[request clearDelegatesAndCancel];
-		[request release];
-		request = nil;
 		
-		[currentURL release];
 		currentURL = [url retain];
-		
-		self.image = nil;
-		
-		[actView stopAnimating];
 		
 		if ([self.delegate respondsToSelector:@selector(epcImageView:shouldHandleImageForURL:)]) {
 			if (![self.delegate epcImageView:self shouldHandleImageForURL:url]) {
@@ -89,16 +93,14 @@
 				[self.delegate epcImageView:self isShowingImage:cachedImage fromURL:currentURL isFromCache:YES data:nil];
 		}
 	}
-	else {
-		NSLog(@"%s NO URL PROVIDED...", __PRETTY_FUNCTION__);
-	}
 }
 
 -(void)requestFailed:(ASIHTTPRequest *)_request {
 	
 	if (_request.otherData == currentURL) {
 		[self setImage:nil];
-		[self.delegate epcImageView:self failedLoadingURL:currentURL];
+		if ([self.delegate respondsToSelector:@selector(epcImageView:failedLoadingURL:)])
+			[self.delegate epcImageView:self failedLoadingURL:currentURL];
 		[actView stopAnimating];
 	}
 }
