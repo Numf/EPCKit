@@ -5,7 +5,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "EPCImageView.h"
+
+@class EPCImageView;
 
 @interface EPCButton : UIControl {
 }
