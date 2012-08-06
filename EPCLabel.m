@@ -19,7 +19,7 @@
 	
     CGRect dateFrame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.frame.size.width, dateStringSize.height);
 	
-    self.frame = dateFrame;
+    [super setFrame:dateFrame];
 }
 
 - (CGFloat)fontSizeWithFont:(UIFont *)font constrainedToSize:(CGSize)size {
@@ -78,6 +78,11 @@
 	self.alignTextOnTop = YES;
 	self.minimumFontSize = self.font.pointSize - 4;
 	//self.adjustsFontSizeToFitWidth = YES;
+}
+
+-(void)setFrame:(CGRect)newSize {
+	[super setFrame:newSize];
+	originalSize = newSize.size;
 }
 
 @end

@@ -11,5 +11,7 @@
 	CGSize originalSize;
 }
 @property (nonatomic, readwrite) BOOL alignTextOnTop;
+
 -(void)verticalAlignTop;
+
 @end
