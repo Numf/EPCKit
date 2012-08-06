@@ -5,6 +5,7 @@
 //
 
 #import "EPCButton.h"
+#import "EPCImageView.h"
 
 @implementation EPCButton
 @synthesize dataObject, epcImageView;
@@ -12,7 +13,7 @@
 - (EPCImageView *)epcImageView {
 	if (!epcImageView) {
 		epcImageView = [[EPCImageView alloc] initWithFrame:self.bounds];
-		[self addSubview:epcImageView];
+		[self insertSubview:epcImageView atIndex:0];
 		[epcImageView release];
 	}
 	return epcImageView;
