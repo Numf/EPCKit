@@ -77,7 +77,7 @@
 #pragma mark - Loading Views
 
 - (void)loadContentsForPage:(int)page {
-	if (!zoomingView) {
+	if (!zoomingView && page < numberOfPages) {
 		UIView *view = [self requestViewForPage:page];
 		if (view)
 			[pvtScrollView addSubview:view];
@@ -392,8 +392,10 @@
 }
 
 -(void)refreshContentSize {
-	numberOfPages = [self.delegate epcGalleryNumberOfPages:self];
-	[pvtScrollView setContentSize:CGSizeMake(numberOfPages*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
+	if (!zoomingView) {
+		numberOfPages = [self.delegate epcGalleryNumberOfPages:self];
+		[pvtScrollView setContentSize:CGSizeMake(numberOfPages*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
+	}
 }
 
 @end
