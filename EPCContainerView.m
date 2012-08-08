@@ -260,7 +260,10 @@
 	while (view != nil && ![view isKindOfClass:[EPCContainerView class]])
 		view = view.superview;
 	
-	NSAssert((view != nil && [view isKindOfClass:[EPCContainerView class]]), @"View not in a EPCContainerViewController");
+#ifdef DEBUG
+	if (view == nil)
+		NSLog(@"%@ is not in a EPCContainerView", NSStringFromClass([self class]));
+#endif
 	return (id)view;
 }
 @end
@@ -272,7 +275,10 @@
 	while (view != nil && ![view isKindOfClass:[EPCContainerView class]])
 		view = view.superview;
 	
-	NSAssert((view != nil && [view isKindOfClass:[EPCContainerView class]]), @"View not in a EPCContainerViewController");
+#ifdef DEBUG
+	if (view == nil)
+		NSLog(@"%@ is not in a EPCContainerView", NSStringFromClass([self class]));
+#endif
 	return (id)view;
 }
 @end
