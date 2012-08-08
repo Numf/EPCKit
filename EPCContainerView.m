@@ -262,7 +262,7 @@
 	
 #ifdef DEBUG
 	if (view == nil)
-		NSLog(@"%@ is not in a EPCContainerView", NSStringFromClass([self class]));
+		NSLog(@"Warning: %@ is not in a EPCContainerView. Returning nil.", NSStringFromClass([self class]));
 #endif
 	return (id)view;
 }
@@ -277,7 +277,7 @@
 	
 #ifdef DEBUG
 	if (view == nil)
-		NSLog(@"%@ is not in a EPCContainerView", NSStringFromClass([self class]));
+		NSLog(@"Warning: %@ is not in a EPCContainerView. Returning nil.", NSStringFromClass([self class]));
 #endif
 	return (id)view;
 }
