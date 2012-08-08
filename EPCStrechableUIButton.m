@@ -22,15 +22,21 @@
 	if (img != (img = [self backgroundImageForState:UIControlStateSelected]))
 		[self setBackgroundImage:img forState:UIControlStateSelected];
 	
-	NSAssert(img.size.height == self.frame.size.height, @"EPCStrechableUIButton Doesn't work well if the image height is different than button height. Image height is %f", img.size.height);
+#ifdef DEBUG
+	if(img.size.height != self.frame.size.height)
+		NSLog(@"Warning: EPCStrechableUIButton Doesn't work well if the image height is different than button height. Image height is %f and button height is %f", img.size.height, self.frame.size.height);
+#endif
 }
 
 - (void)setBackgroundImage:(UIImage*)img forState:(UIControlState)state {
-	NSAssert(img.size.height == self.frame.size.height, @"EPCStrechableUIButton Doesn't work well if the image height is different than button height. Image height is %f", img.size.height);
-	
 	int w = img.size.width/2;
 	int h = img.size.height;
 	[super setBackgroundImage:[img stretchableImageWithLeftCapWidth:w topCapHeight:h] forState:state];
+	
+#ifdef DEBUG
+	if(img.size.height != self.frame.size.height)
+		NSLog(@"Warning: EPCStrechableUIButton Doesn't work well if the image height is different than button height. Image height is %f and button height is %f", img.size.height, self.frame.size.height);
+#endif
 }
 
 @end
