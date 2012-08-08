@@ -15,3 +15,4 @@
 #import "EPCLabel.h"
 #import "EPCStrechableUIButton.h"
 #import "EPCTabBar.h"
+#import "EPCDefines.h"
