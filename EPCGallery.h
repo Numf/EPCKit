@@ -4,6 +4,10 @@
 //  Created by Everton Postay Cunha on 23/07/12.
 //
 
+/*
+ EPCGallery works using the UIView tag property. Please don't change the views tags.
+ */
+
 #import <UIKit/UIKit.h>
 
 @class EPCGallery;
@@ -25,6 +29,11 @@
  Loads the given page and the near pages according to loadLimit.
  */
 - (void)loadContentsForPage:(int)page;
+
+/*
+ Returns the page number of a given view. NSNotFound it not found.
+ */
+- (int)pageOfView:(UIView*)view;
 
 /*
  Recalculates the content size.
