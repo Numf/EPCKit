@@ -27,3 +27,7 @@
 - (UIScrollView*)webScrollView;
 - (void)ajustToHeightAndStopBouncing;
 @end
+
+@interface NSString (EPCCategories)
+- (NSString*)md5;
+@end
