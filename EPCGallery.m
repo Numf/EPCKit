@@ -25,6 +25,12 @@
 
 #pragma mark - Default
 
+- (void)dealloc
+{
+    self.delegate = nil;
+    [super dealloc];
+}
+
 - (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
@@ -136,6 +142,12 @@
 			[pvtScrollView insertSubview:view atIndex:0];
 		}
 	}
+}
+
+- (int)pageOfView:(UIView *)view {
+	if (view.tag < TAG_DELIMITER || view.tag - TAG_DELIMITER > numberOfPages)
+		return NSNotFound;
+	return view.tag - TAG_DELIMITER;
 }
 
 - (UIView*)requestViewForPage:(int)page {
@@ -360,10 +372,12 @@
 }
 
 - (void)handleDoubleTap:(UIGestureRecognizer *)gestureRecognizer {
-    if(pvtScrollView.zoomScale > pvtScrollView.minimumZoomScale)
-        [pvtScrollView setZoomScale:pvtScrollView.minimumZoomScale animated:YES];
-    else
-        [pvtScrollView setZoomScale:pvtScrollView.maximumZoomScale animated:YES];
+	if (numberOfPages > 0) {
+		if(pvtScrollView.zoomScale > pvtScrollView.minimumZoomScale)
+			[pvtScrollView setZoomScale:pvtScrollView.minimumZoomScale animated:YES];
+		else
+			[pvtScrollView setZoomScale:pvtScrollView.maximumZoomScale animated:YES];
+	}
 }
 
 #pragma mark - Others
