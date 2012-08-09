@@ -37,6 +37,14 @@
     [super dealloc];
 }
 
+-(BOOL)retry {
+	if (currentURL) {
+		[self setImageByURL:[NSURL URLWithString:[currentURL absoluteString]]];
+		return YES;
+	}
+	return NO;
+}
+
 -(void)setImageByURL:(NSURL *)url {
 	
 	[request clearDelegatesAndCancel];
@@ -74,8 +82,11 @@
 		if (!cachedImage) {
 			if (!actView) {
 				actView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-				actView.center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
 				actView.hidesWhenStopped = YES;
+				if ([self.delegate respondsToSelector:@selector(epcImageView:frameForActivityIndicatorView:)])
+					actView.frame = [self.delegate epcImageView:self frameForActivityIndicatorView:actView];
+				else
+					actView.center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
 				[self addSubview:actView];
 				[actView release];
 			}
@@ -132,6 +143,12 @@
 		}
 	}
 	
+}
+
+- (void)setFrame:(CGRect)frame {
+	[super setFrame:frame];
+	if (![self.delegate respondsToSelector:@selector(epcImageView:frameForActivityIndicatorView:)])
+		actView.center = CGPointMake(frame.size.width/2, frame.size.height/2);
 }
 
 @end
