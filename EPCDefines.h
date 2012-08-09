@@ -7,7 +7,7 @@
 
 // helpers
 
-#define $sf(obj, ...) (NSString*)[NSString stringWithFormat:obj, __VA_ARGS__];
+#define $sf(obj, ...) (NSString*)[NSString stringWithFormat:obj, __VA_ARGS__]
 
 
 // degree and radians
