@@ -31,3 +31,7 @@
 @interface NSString (EPCCategories)
 - (NSString*)md5;
 @end
+
+@interface UIViewController (EPCCategories)
+- (void)unloadView;
+@end

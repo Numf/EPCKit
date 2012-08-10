@@ -5,6 +5,7 @@
 //
 
 #import "EPCCategories.h"
+#import "EPCDefines.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation UIView (EPCCategories)
@@ -100,5 +101,17 @@
 			result[8], result[9], result[10], result[11],
 			result[12], result[13], result[14], result[15]
 			];
+}
+@end
+
+@implementation UIViewController (EPCCategories)
+-(void)unloadView {
+	if(!IOS_VERSION_LESS_THAN(@"6.0")) {
+		if ([self respondsToSelector:@selector(viewWillUnload)])
+			[self viewWillUnload];
+		self.view = nil;
+		if ([self respondsToSelector:@selector(viewDidUnload)])
+			[self viewDidUnload];	
+	}
 }
 @end
