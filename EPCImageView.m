@@ -6,11 +6,21 @@
 
 #import "EPCImageView.h"
 
+@interface EPCImageView () {
+	UIActivityIndicatorView *actView;
+	NSURL *currentURL;
+	NSOperationQueue *operationQueue;
+	BOOL imageCacheIsDefault;
+}
+@end
+
+
 @implementation EPCImageView
 @synthesize imageCache,delegate;
 
 -(NSCache *)imageCache {
 	if (!imageCache) {
+		imageCacheIsDefault = YES;
 		self.imageCache = [[self class] imageCache];
 	}
 	return imageCache;
@@ -28,11 +38,13 @@
 {
 	self.delegate = nil;
 	
-	[request clearDelegatesAndCancel];
+	if (!imageCacheIsDefault)
+		self.imageCache = nil;
+	
+	[operationQueue cancelAllOperations];
+	[operationQueue release];
 	
     [currentURL release];
-	
-	[request release];
 	
     [super dealloc];
 }
@@ -46,10 +58,11 @@
 }
 
 -(void)setImageByURL:(NSURL *)url {
+
+	[operationQueue cancelAllOperations];
 	
-	[request clearDelegatesAndCancel];
-	[request release];
-	request = nil;
+	if (!operationQueue)
+		operationQueue = [NSOperationQueue new];
 	
 	[currentURL release];
 	currentURL = nil;
@@ -62,87 +75,31 @@
 		
 		currentURL = [url retain];
 		
+		if (!actView) {
+			actView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+			actView.hidesWhenStopped = YES;
+			if ([self.delegate respondsToSelector:@selector(epcImageView:frameForActivityIndicatorView:)])
+				actView.frame = [self.delegate epcImageView:self frameForActivityIndicatorView:actView];
+			else
+				actView.center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
+			[self addSubview:actView];
+			[actView release];
+		}
+		
+		
 		if ([self.delegate respondsToSelector:@selector(epcImageView:shouldHandleImageForURL:)]) {
 			if (![self.delegate epcImageView:self shouldHandleImageForURL:url]) {
 				return;
 			}
 		}
 		
-		UIImage *cachedImage = [self.imageCache objectForKey:[url absoluteString]];
+		// run operation
 		
-		if (!cachedImage) {
-			if ([self.delegate respondsToSelector:@selector(epcImageView:imageForURL:)]) {
-				cachedImage = [self.delegate epcImageView:self imageForURL:url];
-				if (cachedImage) {
-					[self.imageCache setObject:cachedImage forKey:[url absoluteString]];
-				}
-			}
-		}
+		[actView startAnimating];
 		
-		if (!cachedImage) {
-			if (!actView) {
-				actView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-				actView.hidesWhenStopped = YES;
-				if ([self.delegate respondsToSelector:@selector(epcImageView:frameForActivityIndicatorView:)])
-					actView.frame = [self.delegate epcImageView:self frameForActivityIndicatorView:actView];
-				else
-					actView.center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
-				[self addSubview:actView];
-				[actView release];
-			}
-			[actView startAnimating];
-			
-			request = [[ASIHTTPRequest alloc] initWithURL:url];
-			request.otherData = url;
-			[request setDelegate:self];
-			[request startAsynchronous];
-		}
-		else {
-			[self setImage:cachedImage];
-			
-			if ([self.delegate respondsToSelector:@selector(epcImageView:isShowingImage:fromURL:isFromCache:data:)])
-				[self.delegate epcImageView:self isShowingImage:cachedImage fromURL:currentURL isFromCache:YES data:nil];
-		}
+		GrabImageOperation *operation = [GrabImageOperation grabImageOperationWithURL:currentURL epcImageView:self];
+		[operationQueue addOperation:operation];
 	}
-}
-
--(void)requestFailed:(ASIHTTPRequest *)_request {
-	
-	if (_request.otherData == currentURL) {
-		[self setImage:nil];
-		if ([self.delegate respondsToSelector:@selector(epcImageView:failedLoadingURL:)])
-			[self.delegate epcImageView:self failedLoadingURL:currentURL];
-		[actView stopAnimating];
-	}
-}
-
--(void)requestFinished:(ASIHTTPRequest *)_request {
-	
-	NSData *data = [_request responseData];
-	UIImage *newImage = nil;
-	
-	if (data && (newImage = [UIImage imageWithData:data])) {
-		
-		[self.imageCache setObject:newImage forKey:[_request.otherData absoluteString]];
-		[actView stopAnimating];
-		if (_request.otherData == currentURL) {
-			[actView stopAnimating];
-			[self setImage:newImage];
-			if ([self.delegate respondsToSelector:@selector(epcImageView:isShowingImage:fromURL:isFromCache:data:)])
-				[self.delegate epcImageView:self isShowingImage:newImage fromURL:currentURL isFromCache:NO data:data];
-		}
-		
-		
-	}
-	else {
-		if (_request.otherData == currentURL) {
-			[actView stopAnimating];
-			[self setImage:nil];
-			if ([self.delegate respondsToSelector:@selector(epcImageView:failedLoadingURL:)])
-				[self.delegate epcImageView:self failedLoadingURL:currentURL];
-		}
-	}
-	
 }
 
 - (void)setFrame:(CGRect)frame {
@@ -151,4 +108,133 @@
 		actView.center = CGPointMake(frame.size.width/2, frame.size.height/2);
 }
 
+- (void)downloadedImageFromOperation:(GrabImageOperation*)operation {
+	if (operation.url == currentURL) {
+		[actView stopAnimating];
+		[self setImage:operation.grabbedImage];
+		if ([self.delegate respondsToSelector:@selector(epcImageView:isShowingImage:fromURL:isFromCache:data:)])
+			[self.delegate epcImageView:self isShowingImage:self.image fromURL:operation.url isFromCache:NO data:operation.downloadedData];
+	}
+}
+
+- (void)imageFromCacheFromOperation:(GrabImageOperation*)operation {
+	if (operation.url == currentURL) {
+		[actView stopAnimating];
+		[self setImage:operation.grabbedImage];
+		if ([self.delegate respondsToSelector:@selector(epcImageView:isShowingImage:fromURL:isFromCache:data:)])
+			[self.delegate epcImageView:self isShowingImage:self.image fromURL:operation.url isFromCache:YES data:nil];
+	}
+}
+
+- (void)noImageFromOperation:(GrabImageOperation*)operation {
+	if (operation.url == currentURL) {
+		[actView stopAnimating];
+		[self setImage:nil];
+		if ([self.delegate respondsToSelector:@selector(epcImageView:failedLoadingURL:)])
+			[self.delegate epcImageView:self failedLoadingURL:currentURL];
+	}
+}
+
+
+@end
+
+
+@implementation GrabImageOperation
+@synthesize url, epcImageView, grabbedImage, downloadedData;
+
+- (void)dealloc
+{
+    self.url = nil;
+	self.grabbedImage = nil;
+	self.epcImageView = nil;
+	self.downloadedData = nil;
+    [super dealloc];
+}
++ (GrabImageOperation*)grabImageOperationWithURL:(NSURL *)url epcImageView:(EPCImageView *)imgView {
+	GrabImageOperation *obj = [[[GrabImageOperation alloc] init] autorelease];
+	obj.url = url;
+	obj.epcImageView = imgView;
+	return obj;
+}
+- (void)main {
+	NSAutoreleasePool *pool = [NSAutoreleasePool new];
+	@try {
+		BOOL isDone = NO;
+		
+		while (![self isCancelled] && !isDone) {
+			// Do some work and set isDone to YES when finished
+			
+			BOOL imageIsFromCache = YES;
+			
+			self.grabbedImage = [epcImageView.imageCache objectForKey:[url absoluteString]];
+			
+			if (!grabbedImage) {
+				
+				if ([self isCancelled])
+					break;
+				if ([self.epcImageView.delegate respondsToSelector:@selector(epcImageView:imageForURL:)]) {
+					if ([self isCancelled])
+						break;
+					self.grabbedImage = [epcImageView.delegate epcImageView:epcImageView imageForURL:url];
+					if (grabbedImage) {
+						if ([self isCancelled])
+							break;
+						[epcImageView.imageCache setObject:grabbedImage forKey:[url absoluteString]];
+					}
+				}
+			}
+			
+			if ([self isCancelled])
+				break;
+			
+			if (!grabbedImage) {
+				
+				imageIsFromCache = NO;
+				
+				self.downloadedData = [NSData dataWithContentsOfURL:url];
+				if ([self isCancelled])
+					break;
+				if (downloadedData) {
+					self.grabbedImage = [UIImage imageWithData:downloadedData];
+				}
+			}
+			
+			if ([self isCancelled])
+				break;
+			
+			if (grabbedImage) {
+				// sucessfull
+				
+				if ([self isCancelled])
+					break;
+				if (imageIsFromCache) {
+					// from cache
+					[self.epcImageView performSelectorOnMainThread:@selector(imageFromCacheFromOperation:) withObject:self waitUntilDone:YES];
+				}
+				else {
+					// downloaded
+					[self.epcImageView performSelectorOnMainThread:@selector(downloadedImageFromOperation:) withObject:self waitUntilDone:YES];
+				}
+			}
+			else {
+				if ([self isCancelled])
+					break;
+				// failed
+				[self.epcImageView performSelectorOnMainThread:@selector(noImageFromOperation:) withObject:self waitUntilDone:YES];
+			}
+			
+			isDone = YES;
+		}
+	}
+	@catch(NSException *ex) {
+#ifdef DEBUG
+		NSLog(@"%s %@", __PRETTY_FUNCTION__, ex);
+#endif
+		if (![self isCancelled]) {
+			// Do not rethrow exceptions.
+			[self.epcImageView performSelectorOnMainThread:@selector(noImageFromOperation:) withObject:self waitUntilDone:YES];
+		}
+	}
+	[pool drain];
+}
 @end
