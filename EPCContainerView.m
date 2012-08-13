@@ -6,6 +6,7 @@
 
 #import "EPCContainerView.h"
 #import <QuartzCore/QuartzCore.h>
+#import "EPCCategories.h"
 
 #define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 
@@ -42,7 +43,7 @@
 	}
 	else {
         
-        [newViewController.view setPointX:self.frame.size.width];
+        [newViewController.view setFrameX:self.frame.size.width];
 		[self addSubview:newViewController.view];
         
 		[UIView beginAnimations:@"push" context:nil];
@@ -52,11 +53,11 @@
 		self.userInteractionEnabled = NO;
         for (UIView *sub in self.subviews) {
 			if (sub != newViewController.view) {
-				[sub setPointX:-sub.frame.size.width];
+				[sub setFrameX:-sub.frame.size.width];
 			}
 		}
 
-		[newViewController.view setPointX:0];
+		[newViewController.view setFrameX:0];
 		[UIView commitAnimations];        
 	}
         
@@ -92,7 +93,7 @@
 		[self addSubview:newViewController.view];
 	}
 	else {
-		[newViewController.view setPointX:self.frame.size.width];
+		[newViewController.view setFrameX:self.frame.size.width];
 		[self addSubview:newViewController.view];
 		
 		[UIView beginAnimations:@"push" context:nil];
@@ -102,11 +103,11 @@
 		self.userInteractionEnabled = NO;
 		for (UIView *sub in self.subviews) {
 			if (sub != newViewController.view) {
-				[sub setPointX:-sub.frame.size.width];
+				[sub setFrameX:-sub.frame.size.width];
 			}
 		}
         
-		[newViewController.view setPointX:0];
+		[newViewController.view setFrameX:0];
 		[UIView commitAnimations];
 		
 	}
@@ -130,7 +131,7 @@
 	else 
     {
         
-		[toViewController.view setPointX:-toViewController.view.frame.size.width];
+		[toViewController.view setFrameX:-toViewController.view.frame.size.width];
 		[self addSubview:toViewController.view];
 		
 		[UIView beginAnimations:@"pop" context:nil];
@@ -140,10 +141,10 @@
 		self.userInteractionEnabled = NO;
 		for (UIView *sub in self.subviews) {
 			if (sub != toViewController.view) {
-				[sub setPointX:self.frame.size.width];
+				[sub setFrameX:self.frame.size.width];
 			}
 		}
-		[toViewController.view setPointX:0];
+		[toViewController.view setFrameX:0];
 		[UIView commitAnimations];
 	}
     
@@ -175,7 +176,7 @@
 	else 
     {
         
-		[toViewController.view setPointX:-toViewController.view.frame.size.width];
+		[toViewController.view setFrameX:-toViewController.view.frame.size.width];
 		[self addSubview:toViewController.view];
 		
 		[UIView beginAnimations:@"pop" context:nil];
@@ -185,10 +186,10 @@
 		self.userInteractionEnabled = NO;
 		for (UIView *sub in self.subviews) {
 			if (sub != toViewController.view) {
-				[sub setPointX:self.frame.size.width];
+				[sub setFrameX:self.frame.size.width];
 			}
 		}
-		[toViewController.view setPointX:0];
+		[toViewController.view setFrameX:0];
 		[UIView commitAnimations];
 	}
 	
@@ -218,7 +219,7 @@
 	else 
     {
         
-		[toViewController.view setPointX:-toViewController.view.frame.size.width];
+		[toViewController.view setFrameX:-toViewController.view.frame.size.width];
 		[self addSubview:toViewController.view];
 		
 		[UIView beginAnimations:@"pop" context:nil];
@@ -228,11 +229,11 @@
 		self.userInteractionEnabled = NO;
 		for (UIView *sub in self.subviews) {
 			if (sub != toViewController.view) {
-				[sub setPointX:self.frame.size.width];
+				[sub setFrameX:self.frame.size.width];
 			}
 		}
 
-		[toViewController.view setPointX:0];
+		[toViewController.view setFrameX:0];
 		[UIView commitAnimations];
 	}
 	
