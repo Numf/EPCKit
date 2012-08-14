@@ -26,7 +26,7 @@
 - (BOOL)epcImageView:(EPCImageView*)epcImageView shouldHandleImageForURL:(NSURL*)url;
 
 /*
- You can provide an UIImage for a given URL. This will be handle as cache.
+ You can provide an UIImage for a given URL. This will be handle as cache and will prevent the request.
  */
 - (UIImage*)epcImageView:(EPCImageView*)epcImageView imageForURL:(NSURL*)url;
 
