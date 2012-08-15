@@ -7,11 +7,5 @@
 #import <Foundation/Foundation.h>
 
 @interface EPCDebug : NSObject
-//+(void)swizzle:(Class)c orig:(SEL)orig new:(SEL)new;
++(void)swizzle:(Class)c orig:(SEL)orig new:(SEL)new;
 @end
-
-//#ifdef DEBUG
-//@interface UIResponder (DeallocDebugger)
-//- (void)myDealloc;
-//@end
-//#endif
