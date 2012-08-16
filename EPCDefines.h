@@ -29,3 +29,13 @@
  Check iOS Version.
  */
 #define IOS_VERSION_LESS_THAN(string) ([[[UIDevice currentDevice] systemVersion] compare:string options:NSNumericSearch] == NSOrderedAscending)
+
+
+/*
+ Logging
+*/
+#ifdef DEBUG
+#    define DLog(...) NSLog(__VA_ARGS__)
+#else
+#    define DLog(...) /* */
+#endif
