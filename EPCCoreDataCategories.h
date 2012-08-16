@@ -9,4 +9,13 @@
 @interface NSManagedObjectContext (EPCCoreDataCategories)
 - (NSSet *)fetchObjectsForEntityName:(NSString *)newEntityName
 					   withPredicate:(id)stringOrPredicate, ...;
+
+- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
+					 sortDescriptors:(NSArray*)sortDescriptors
+					   withPredicate:(id)stringOrPredicate, ...;
+
+- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
+							   orderBy:(NSString*)orderBy
+							 ascending:(BOOL)ascending
+						 withPredicate:(id)stringOrPredicate, ...;
 @end

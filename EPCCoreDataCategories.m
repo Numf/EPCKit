@@ -7,12 +7,12 @@
 #import "EPCCoreDataCategories.h"
 
 @implementation NSManagedObjectContext (EPCCoreDataCategories)
-
-// Convenience method to fetch the array of objects for a given Entity
-// name in the context, optionally limiting by a predicate or by a predicate
-// made from a format NSString and variable arguments.
-//
 - (NSSet *)fetchObjectsForEntityName:(NSString *)newEntityName
+					   withPredicate:(id)stringOrPredicate, ... {
+	return [NSSet setWithArray:[self fetchObjectsForEntityName:newEntityName sortDescriptors:nil withPredicate:stringOrPredicate]];
+}
+- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
+					 sortDescriptors:(NSArray*)sortDescriptors
 					   withPredicate:(id)stringOrPredicate, ...
 {
     NSEntityDescription *entity = [NSEntityDescription
@@ -20,6 +20,8 @@
 	
     NSFetchRequest *request = [[[NSFetchRequest alloc] init] autorelease];
     [request setEntity:entity];
+	if (sortDescriptors)
+		[request setSortDescriptors:sortDescriptors];
 	
     if (stringOrPredicate)
     {
@@ -49,7 +51,15 @@
         [NSException raise:NSGenericException format:@"%@",[error description]];
     }
 	
-    return [NSSet setWithArray:results];
+    return results;
 }
 
+- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
+							   orderBy:(NSString*)orderBy
+							 ascending:(BOOL)ascending
+						 withPredicate:(id)stringOrPredicate, ... {
+	if (orderBy)
+		return [self fetchObjectsForEntityName:newEntityName sortDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:orderBy ascending:ascending]] withPredicate:stringOrPredicate];
+	return [self fetchObjectsForEntityName:newEntityName sortDescriptors:nil withPredicate:stringOrPredicate];
+}
 @end
