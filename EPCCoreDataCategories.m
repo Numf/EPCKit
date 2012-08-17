@@ -9,7 +9,31 @@
 @implementation NSManagedObjectContext (EPCCoreDataCategories)
 - (NSSet *)fetchObjectsForEntityName:(NSString *)newEntityName
 					   withPredicate:(id)stringOrPredicate, ... {
-	return [NSSet setWithArray:[self fetchObjectsForEntityName:newEntityName sortDescriptors:nil withPredicate:stringOrPredicate]];
+	if (stringOrPredicate)
+    {
+        NSPredicate *predicate;
+        if ([stringOrPredicate isKindOfClass:[NSString class]])
+        {
+            va_list variadicArguments;
+            va_start(variadicArguments, stringOrPredicate);
+            predicate = [NSPredicate predicateWithFormat:stringOrPredicate
+											   arguments:variadicArguments];
+            va_end(variadicArguments);
+        }
+        else
+        {
+            NSAssert2([stringOrPredicate isKindOfClass:[NSPredicate class]],
+					  @"Second parameter passed to %s is of unexpected class %@",
+					  sel_getName(_cmd), NSStringFromClass([stringOrPredicate class]));
+            predicate = (NSPredicate *)stringOrPredicate;
+        }
+		stringOrPredicate = predicate;
+    }
+	
+	NSArray *array = [self fetchObjectsForEntityName:newEntityName sortDescriptors:nil withPredicate:stringOrPredicate];
+	if (array)
+		return [NSSet setWithArray:array];
+	return nil;
 }
 - (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
 					 sortDescriptors:(NSArray*)sortDescriptors
@@ -51,13 +75,37 @@
         [NSException raise:NSGenericException format:@"%@",[error description]];
     }
 	
-    return results;
+	if ([results count] > 0)
+		return results;
+	return nil;
 }
 
 - (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
 							   orderBy:(NSString*)orderBy
 							 ascending:(BOOL)ascending
 						 withPredicate:(id)stringOrPredicate, ... {
+	
+	if (stringOrPredicate)
+    {
+        NSPredicate *predicate;
+        if ([stringOrPredicate isKindOfClass:[NSString class]])
+        {
+            va_list variadicArguments;
+            va_start(variadicArguments, stringOrPredicate);
+            predicate = [NSPredicate predicateWithFormat:stringOrPredicate
+											   arguments:variadicArguments];
+            va_end(variadicArguments);
+        }
+        else
+        {
+            NSAssert2([stringOrPredicate isKindOfClass:[NSPredicate class]],
+					  @"Second parameter passed to %s is of unexpected class %@",
+					  sel_getName(_cmd), NSStringFromClass([stringOrPredicate class]));
+            predicate = (NSPredicate *)stringOrPredicate;
+        }
+		stringOrPredicate = predicate;
+    }
+	
 	if (orderBy)
 		return [self fetchObjectsForEntityName:newEntityName sortDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:orderBy ascending:ascending]] withPredicate:stringOrPredicate];
 	return [self fetchObjectsForEntityName:newEntityName sortDescriptors:nil withPredicate:stringOrPredicate];
