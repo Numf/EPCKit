@@ -151,7 +151,6 @@
 #pragma mark - Public
 
 - (void)selectRowAtIndex:(int)index {
-	NSLog(@"%s", __PRETTY_FUNCTION__);
 	NSIndexPath *ip = [NSIndexPath indexPathForRow:index inSection:0];
 	[self tableView:tableView didSelectRowAtIndexPath:ip];
 }
