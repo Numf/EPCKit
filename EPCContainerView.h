@@ -7,10 +7,10 @@
 #import <Foundation/Foundation.h>
 
 @class EPCContainerView;
-@protocol ContainerViewDelegate <NSObject>
+@protocol EPCContainerViewDelegate <NSObject>
 @optional
-- (void)container:(EPCContainerView*)container pushedViewController:(UIViewController*)pushedViewController animated:(BOOL)animated;
-- (void)container:(EPCContainerView*)container poppedToViewController:(UIViewController*)poppedToViewController animated:(BOOL)animated;
+- (void)container:(EPCContainerView*)epcContainerView pushedViewController:(UIViewController*)pushedViewController animated:(BOOL)animated;
+- (void)container:(EPCContainerView*)epcContainerView poppedToViewController:(UIViewController*)poppedToViewController animated:(BOOL)animated;
 @end
 
 
@@ -33,7 +33,7 @@
 
 @property (nonatomic, readonly) UIViewController *visibleViewController;
 @property (nonatomic, readonly) NSArray *pushedViewControllers;
-@property (nonatomic, assign) IBOutlet id<ContainerViewDelegate>delegate;
+@property (nonatomic, assign) IBOutlet id<EPCContainerViewDelegate>delegate;
 @property (nonatomic, assign) IBOutlet UIViewController *containerViewController;
 
 @end
