@@ -291,7 +291,6 @@
 	
 	UIView *superview = theSuperView = self.superview.superview;
 	while (superview != nil) {
-		NSLog(@"%@", NSStringFromClass([superview class]));
 		superview = superview.superview;
 	}
 	
