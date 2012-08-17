@@ -6,6 +6,7 @@
 
 #import "EPCWebService.h"
 #import "EPCCategories.h"
+#import "EPCHTTPRequest.h"
 
 @interface EPCWebService () {
 	NSOperationQueue *operationQueue;
@@ -33,8 +34,6 @@
 -(void)cancelAllRequests {
 	@synchronized(self) {
 		[operationQueue cancelAllOperations];
-		//		for (ASIHTTPRequest *req in operationQueue.operations)
-		//			[req clearDelegatesAndCancel];
 		[operationQueue release];
 		operationQueue = nil;
 	}
@@ -45,8 +44,7 @@
 		if (!operationQueue)
 			operationQueue = [[NSOperationQueue alloc] init];
 		
-		ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
-		request.delegate = self;
+		EPCHTTPRequest *request = [EPCHTTPRequest requestWithURL:url delegate:self];
 		[operationQueue addOperation:request];
 	}
 #ifdef DEBUG
@@ -66,8 +64,7 @@
 		if (!operationQueue)
 			operationQueue = [[NSOperationQueue alloc] init];
 		
-		ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
-		request.delegate = self;
+		EPCHTTPRequest *request = [EPCHTTPRequest requestWithURL:url delegate:self];
 		[operationQueue addOperation:request];
 	}
 #ifdef DEBUG
@@ -107,16 +104,16 @@
 
 #pragma mark - Response
 
--(void)requestStarted:(ASIHTTPRequest *)request {
-	if ([self.delegate respondsToSelector:@selector(epcWebService:requestStarted:)])
-		[self.delegate epcWebService:self requestStarted:request];
+-(void)epcHTTPRequestStarted:(EPCHTTPRequest *)request {
+	if ([self.delegate respondsToSelector:@selector(epcWebService:requestStartedWithURL:)])
+		[self.delegate epcWebService:self requestStartedWithURL:request.url];
 }
 
--(void)requestFailed:(ASIHTTPRequest *)request {
-	[self.delegate epcWebService:self requestFailed:request];
+-(void)epcHTTPRequestFailed:(EPCHTTPRequest *)request {
+	[self.delegate epcWebService:self requestFailedWithError:request.error];
 }
 
--(void)requestFinished:(ASIHTTPRequest *)request {
+-(void)epcHTTPRequestFinished:(EPCHTTPRequest *)request {
 	if (self.cacheResponses) {
 		[self performSelectorInBackground:@selector(saveRequestToCache:) withObject:request];
 	}
@@ -135,11 +132,11 @@
 	BOOL *continueAftError = NO;
 	BOOL isCache = NO;
 	
-	ASIHTTPRequest *request = nil;
+	EPCHTTPRequest *request = nil;
 	
 	NSString *responseString = nil;
 	
-	if ([requestOrCachedString isKindOfClass:[ASIHTTPRequest class]]) {
+	if ([requestOrCachedString isKindOfClass:[EPCHTTPRequest class]]) {
 		request = requestOrCachedString;
 		responseString = request.responseString;
 	}
@@ -153,7 +150,7 @@
 	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:5];
 	
 	if (error) {
-		if ([self.delegate respondsToSelector:@selector(epcWebService:encounteredError:parsingRequest:)]) {
+		if ([self.delegate respondsToSelector:@selector(epcWebService:encounteredError:parsingURL:)]) {
 			
 			[dict setObject:[NSNumber numberWithBool:isCache] forKey:@"cac"];
 			if (error)
@@ -186,18 +183,18 @@
 - (void)requestHasFinished:(NSDictionary*)dict {
 	id data = [dict objectForKey:@"obj"];
 	EPCPagination *pagination = [dict objectForKey:@"pag"];
-	ASIHTTPRequest *request = [dict objectForKey:@"req"];
+	EPCHTTPRequest *request = [dict objectForKey:@"req"];
 	NSError *error = [dict objectForKey:@"err"];
 	BOOL isCache = [[dict objectForKey:@"cac"] boolValue];
 	
-	[self.delegate epcWebService:self returnedData:data pagination:pagination isCache:isCache request:request parseError:error];
+	[self.delegate epcWebService:self returnedData:data pagination:pagination isCache:isCache url:request.url parseError:error];
 }
 
 - (void)requestEnconteredError:(NSDictionary*)dict {
 	NSError *error = [dict objectForKey:@"err"];
-	ASIHTTPRequest *request = [dict objectForKey:@"req"];
+	EPCHTTPRequest *request = [dict objectForKey:@"req"];
 	
-	[self.delegate epcWebService:self encounteredError:error parsingRequest:request];
+	[self.delegate epcWebService:self encounteredError:error parsingURL:request.url];
 }
 
 #pragma mark - Cache
@@ -235,7 +232,7 @@
 	}
 }
 
--(void)saveRequestToCache:(ASIHTTPRequest *)request {
+-(void)saveRequestToCache:(EPCHTTPRequest *)request {
 	NSString *path = [self cachePath];
 	if (!path)
 		return;
@@ -309,11 +306,9 @@
 	return nil;
 }
 
+#pragma mark - End Override
 @end
 
-
-
-#pragma mark - EPCPagination
 
 @implementation EPCPagination
 @synthesize previousURLString,nextURLString;

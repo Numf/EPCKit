@@ -22,27 +22,41 @@
 */
 
 #import <Foundation/Foundation.h>
-#import "ASIHTTPRequest.h"
+#import "EPCHTTPRequest.h"
 
 @class EPCPagination;
 @class EPCWebService;
 
 @protocol EPCWebServiceDelegate <NSObject>
+@required
+/*
+ Fired when the request finishes. URL is nil if it's from cache.
+ */
+- (void)epcWebService:(EPCWebService*)epcWebService returnedData:(id)data pagination:(EPCPagination*)pagination isCache:(BOOL)isCache url:(NSURL*)url parseError:(NSError*)parseError;
 
-- (void)epcWebService:(EPCWebService*)epcWebService returnedData:(id)data pagination:(EPCPagination*)pagination isCache:(BOOL)isCache request:(ASIHTTPRequest*)request parseError:(NSError*)parseError;
-
-- (void)epcWebService:(EPCWebService*)epcWebService requestFailed:(ASIHTTPRequest*)request;
+/*
+ Fired when request fails.
+ */
+- (void)epcWebService:(EPCWebService*)epcWebService requestFailedWithError:(NSError*)error;
 
 @optional
+/*
+ Fired when request starts.
+ */
+- (void)epcWebService:(EPCWebService*)epcWebService requestStartedWithURL:(NSURL*)url;
 
-- (void)epcWebService:(EPCWebService*)epcWebService requestStarted:(ASIHTTPRequest*)request;
+/*
+ Fired when an error ocurred while parsing. URL is nil if it's from cache.
+ */
+- (void)epcWebService:(EPCWebService*)epcWebService encounteredError:(NSError*)error parsingURL:(NSURL*)url;
 
-- (void)epcWebService:(EPCWebService*)epcWebService encounteredError:(NSError*)error parsingRequest:(ASIHTTPRequest*)request;
-
+/*
+ Fired when there is no cache when requesting for it. 
+ */
 - (void)epcWebService:(EPCWebService *)epcWebService noCacheForURLString:(NSString *)urlString;
 @end
 
-@interface EPCWebService : NSObject <ASIHTTPRequestDelegate>
+@interface EPCWebService : NSObject <EPCHTTPRequestDelegate>
 
 /*
  Clear delegate and cancel all requests.
@@ -98,10 +112,7 @@
  The delegate.
  */
 @property (nonatomic, assign) id<EPCWebServiceDelegate> delegate;
-
 @end
-
-#pragma mark - EPCPagination
 
 @interface EPCPagination : NSObject
 @property (nonatomic, copy) NSString *previousURLString, *nextURLString;
