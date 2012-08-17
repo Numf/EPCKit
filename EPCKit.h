@@ -1,6 +1,5 @@
 //
 //  EPCKit.h
-//  EPCKit
 //
 //  Created by Everton Postay Cunha on 30/07/12.
 //
@@ -13,7 +12,6 @@
 #import "EPCGallery.h"
 #import "EPCImageView.h"
 #import "EPCLabel.h"
-#import "EPCStrechableUIButton.h"
 #import "EPCTabBar.h"
 #import "EPCDefines.h"
-#import "EPCStrechableUITextField.h"
+#import "EPCHTTPRequest.h"
