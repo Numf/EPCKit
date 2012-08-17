@@ -62,8 +62,8 @@
 	}
         
 	
-	if ([self.delegate respondsToSelector:@selector(container:pushedViewController:animated:)])
-		[self.delegate container:self pushedViewController:newViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:pushedViewController:animated:)])
+		[self.delegate epcContainerView:self pushedViewController:newViewController animated:animated];
 }
 
 -(void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
@@ -112,8 +112,8 @@
 		
 	}
 	
-	if ([self.delegate respondsToSelector:@selector(container:pushedViewController:animated:)])
-		[self.delegate container:self pushedViewController:newViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:pushedViewController:animated:)])
+		[self.delegate epcContainerView:self pushedViewController:newViewController animated:animated];
 }
 
 - (void)popToViewController:(UIViewController *)toViewController animated:(BOOL)animated {
@@ -153,8 +153,8 @@
 		[pushedViewControllers removeLastObject];
     }
 	
-	if ([self.delegate respondsToSelector:@selector(container:poppedToViewController:animated:)])
-		[self.delegate container:self poppedToViewController:toViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedToViewController:animated:)])
+		[self.delegate epcContainerView:self poppedToViewController:toViewController animated:animated];
 	
 }
 
@@ -193,8 +193,8 @@
 		[UIView commitAnimations];
 	}
 	
-	if ([self.delegate respondsToSelector:@selector(container:poppedToViewController:animated:)])
-		[self.delegate container:self poppedToViewController:toViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedToViewController:animated:)])
+		[self.delegate epcContainerView:self poppedToViewController:toViewController animated:animated];
 }
 
 -(void)popToRootViewControllerAnimated:(BOOL)animated {
@@ -237,8 +237,8 @@
 		[UIView commitAnimations];
 	}
 	
-	if ([self.delegate respondsToSelector:@selector(container:poppedToViewController:animated:)])
-		[self.delegate container:self poppedToViewController:toViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedToViewController:animated:)])
+		[self.delegate epcContainerView:self poppedToViewController:toViewController animated:animated];
 }
 
 
