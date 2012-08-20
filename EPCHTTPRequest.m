@@ -8,7 +8,6 @@
 
 @interface EPCHTTPRequest() {
 	NSOperationQueue *_operationQueue;
-	NSError *_error;
 	NSString *_responseString;
 }
 @end
@@ -38,6 +37,7 @@
 	_operationQueue = nil;
 	self.url = nil;
 	self.delegate = nil;
+	self.error = nil;
 	[_responseData release];
     [super dealloc];
 }
@@ -74,8 +74,7 @@
 - (void)epcHTTPRequestFailed:(EPCHTTPRequest*)request {
 	[_responseString release];
 	_responseString = nil;
-	[_error release];
-	_error = [request.error retain];
+	self.error = request.error;
 	if ([_delegate respondsToSelector:@selector(epcHTTPRequestFailed:)])
 		[_delegate epcHTTPRequestFailed:self];
 }
@@ -93,7 +92,9 @@
 				[(EPCHTTPRequest*)_delegate performSelectorOnMainThread:@selector(epcHTTPRequestStarted:) withObject:self waitUntilDone:YES];
 			if ([self isCancelled])
 				break;
-			_responseData = [[NSData alloc] initWithContentsOfURL:_url options:NSDataReadingUncached error:&_error];
+			NSError *error = nil;
+			_responseData = [[NSData alloc] initWithContentsOfURL:_url options:NSDataReadingUncached error:&error];
+			self.error = error;
 			if ([self isCancelled])
 				break;
 			if (_responseData && !_error) {

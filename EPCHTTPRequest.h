@@ -65,7 +65,7 @@
 /*
  Request error when it fails.
  */
-@property (readonly) NSError *error;
+@property (retain) NSError *error;
 
 /*
  The data returned from the request.
@@ -76,6 +76,11 @@
  The data as string.
  */
 @property (readonly) NSString *responseString;
+
+/*
+ A tag.
+ */
+@property (readwrite) int tag;
 
 /*
  The request URL.
