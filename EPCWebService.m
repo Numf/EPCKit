@@ -16,8 +16,6 @@
 
 @implementation EPCWebService
 
-@synthesize delegate, cacheResponses;
-
 - (void)dealloc
 {
 	[self clearDelegateAndCancel];
@@ -114,7 +112,7 @@
 }
 
 -(void)epcHTTPRequestFinished:(EPCHTTPRequest *)request {
-	if (self.cacheResponses) {
+	if (self.isCachingResponses) {
 		[self performSelectorInBackground:@selector(saveRequestToCache:) withObject:request];
 	}
 	
@@ -150,16 +148,13 @@
 	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:5];
 	
 	if (error) {
-		if ([self.delegate respondsToSelector:@selector(epcWebService:encounteredError:parsingURL:)]) {
-			
-			[dict setObject:[NSNumber numberWithBool:isCache] forKey:@"cac"];
-			if (error)
-				[dict setObject:error forKey:@"err"];
-			if (request)
-				[dict setObject:request forKey:@"req"];
-			
-			[self performSelectorOnMainThread:@selector(requestEnconteredError:) withObject:dict waitUntilDone:YES];
-		}
+		[dict setObject:[NSNumber numberWithBool:isCache] forKey:@"cac"];
+		if (error)
+			[dict setObject:error forKey:@"err"];
+		if (request)
+			[dict setObject:request forKey:@"req"];
+		
+		[self performSelectorOnMainThread:@selector(requestEnconteredError:) withObject:dict waitUntilDone:YES];
 	}
 	
 	if (parsedObj && (!error || continueAftError)) {
@@ -311,7 +306,6 @@
 
 
 @implementation EPCPagination
-@synthesize previousURLString,nextURLString;
 - (void)dealloc {
     self.previousURLString = nil;
 	self.nextURLString = nil;

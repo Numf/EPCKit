@@ -12,7 +12,7 @@
 	return urlString;
 }
 
-// Parse the string to NSObject. (JSON/XML to Obj-C objects).
+// Parse the string to NSObject. (JSON/XML to Obj-C objects). This runs in a background thread.
 - (id)parseToObjectFromString:(NSString*)string pagination:(EPCPagination**)pagination error:(NSError**)error continueAfterError:(BOOL**)continueAfterError {
 	*continueAfterError = NO;
 	*error = nil;
@@ -39,16 +39,15 @@
  */
 - (void)epcWebService:(EPCWebService*)epcWebService requestFailedWithError:(NSError*)error;
 
+/*
+ Fired when an error ocurred while parsing. URL is nil if it's from cache.
+ */
+- (void)epcWebService:(EPCWebService*)epcWebService encounteredError:(NSError*)error parsingURL:(NSURL*)url;
 @optional
 /*
  Fired when request starts.
  */
 - (void)epcWebService:(EPCWebService*)epcWebService requestStartedWithURL:(NSURL*)url;
-
-/*
- Fired when an error ocurred while parsing. URL is nil if it's from cache.
- */
-- (void)epcWebService:(EPCWebService*)epcWebService encounteredError:(NSError*)error parsingURL:(NSURL*)url;
 
 /*
  Fired when there is no cache when requesting for it. 
@@ -106,14 +105,14 @@
 /*
  Saves response strings to cache. This writes a md5(url).txt file.
  */
-@property (nonatomic, readwrite) BOOL cacheResponses;
+@property (readwrite,getter=isCachingResponses) BOOL cacheResponses;
 
 /*
  The delegate.
  */
-@property (nonatomic, assign) id<EPCWebServiceDelegate> delegate;
+@property (assign) id<EPCWebServiceDelegate> delegate;
 @end
 
 @interface EPCPagination : NSObject
-@property (nonatomic, copy) NSString *previousURLString, *nextURLString;
+@property (copy) NSString *previousURLString, *nextURLString;
 @end
