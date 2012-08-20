@@ -9,8 +9,8 @@
 @class EPCContainerView;
 @protocol EPCContainerViewDelegate <NSObject>
 @optional
-- (void)epcContainerView:(EPCContainerView*)epcContainerView pushedViewController:(UIViewController*)pushedViewController animated:(BOOL)animated;
-- (void)epcContainerView:(EPCContainerView*)epcContainerView poppedToViewController:(UIViewController*)poppedToViewController animated:(BOOL)animated;
+- (void)epcContainerView:(EPCContainerView*)epcContainerView pushedViewController:(UIViewController*)pushedViewController fromViewController:(UIViewController*)fromViewController animated:(BOOL)animated;
+- (void)epcContainerView:(EPCContainerView*)epcContainerView poppedFromViewController:(UIViewController*)fromViewController toViewController:(UIViewController*)toViewController animated:(BOOL)animated;
 @end
 
 

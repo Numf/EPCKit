@@ -25,6 +25,8 @@
 -(void)pushNewRootViewController:(UIViewController *)newViewController animated:(BOOL)animated {
 	NSAssert((newViewController != nil), @"Trying to push nil");
 	
+	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
+	
 	if (!pushedViewControllers)
 		pushedViewControllers = [[NSMutableArray array] retain];
     
@@ -62,8 +64,8 @@
 	}
         
 	
-	if ([self.delegate respondsToSelector:@selector(epcContainerView:pushedViewController:animated:)])
-		[self.delegate epcContainerView:self pushedViewController:newViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:pushedViewController:fromViewController:animated:)])
+		[self.delegate epcContainerView:self pushedViewController:newViewController fromViewController:fromViewController animated:animated];
 }
 
 -(void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
@@ -79,6 +81,8 @@
 -(void)pushViewController:(UIViewController *)newViewController animated:(BOOL)animated {
 	NSAssert((newViewController != nil), @"Trying to push nil");
     
+	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
+	
 	if (!pushedViewControllers)
 		pushedViewControllers = [[NSMutableArray array] retain];
     
@@ -112,11 +116,13 @@
 		
 	}
 	
-	if ([self.delegate respondsToSelector:@selector(epcContainerView:pushedViewController:animated:)])
-		[self.delegate epcContainerView:self pushedViewController:newViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:pushedViewController:fromViewController:animated:)])
+		[self.delegate epcContainerView:self pushedViewController:newViewController fromViewController:fromViewController animated:animated];
 }
 
 - (void)popToViewController:(UIViewController *)toViewController animated:(BOOL)animated {
+	
+	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
 	
 	if (![pushedViewControllers containsObject:toViewController])
 		[NSException raise:@"Exception!" format:@"Trying to pop a view that wasn't push in the container."];
@@ -153,14 +159,16 @@
 		[pushedViewControllers removeLastObject];
     }
 	
-	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedToViewController:animated:)])
-		[self.delegate epcContainerView:self poppedToViewController:toViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedFromViewController:toViewController:animated:)])
+		[self.delegate epcContainerView:self poppedFromViewController:fromViewController toViewController:toViewController animated:animated];
 	
 }
 
 -(void)popViewControllerAnimated:(BOOL)animated
 {
 	assert([pushedViewControllers count] > 0);
+	
+	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
 	
 	[pushedViewControllers removeLastObject];
 	UIViewController *toViewController = [pushedViewControllers lastObject];
@@ -193,8 +201,8 @@
 		[UIView commitAnimations];
 	}
 	
-	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedToViewController:animated:)])
-		[self.delegate epcContainerView:self poppedToViewController:toViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedFromViewController:toViewController:animated:)])
+		[self.delegate epcContainerView:self poppedFromViewController:fromViewController toViewController:toViewController animated:animated];
 }
 
 -(void)popToRootViewControllerAnimated:(BOOL)animated {
@@ -202,6 +210,8 @@
 	if ([pushedViewControllers count] <= 1) {
 		return;
 	}
+	
+	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
 	
 	while ([pushedViewControllers count] > 1)
 		[pushedViewControllers removeLastObject];
@@ -237,8 +247,8 @@
 		[UIView commitAnimations];
 	}
 	
-	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedToViewController:animated:)])
-		[self.delegate epcContainerView:self poppedToViewController:toViewController animated:animated];
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedFromViewController:toViewController:animated:)])
+		[self.delegate epcContainerView:self poppedFromViewController:fromViewController toViewController:toViewController animated:animated];
 }
 
 
@@ -249,7 +259,6 @@
 -(UIView *)visibleViewController {
 	return [pushedViewControllers lastObject];
 }
-
 @end
 
 
