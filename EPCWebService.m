@@ -237,12 +237,11 @@
 	
 	NSError *error = nil;
 	
-	BOOL success = [request.responseString writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error];
-		
+	if(![request.responseString writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error]) {
 #ifdef DEBUG
-	if (!success)
 		NSLog(@"%s Warning: Error while writing file (%@). %@", __PRETTY_FUNCTION__, path, error);
 #endif
+	}
 }
 
 - (NSString*)cachedResponseStringFromURLString:(NSString*)urlString {
