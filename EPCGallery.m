@@ -28,6 +28,7 @@
 - (void)dealloc
 {
     self.delegate = nil;
+	pvtScrollView.delegate = nil;
     [super dealloc];
 }
 
