@@ -8,7 +8,7 @@
 /*
  Misc helpers.
  */
-#define $sf(obj, ...) (NSString*)[NSString stringWithFormat:obj, __VA_ARGS__]
+#define fstr(obj, ...) (NSString*)[NSString stringWithFormat:obj, __VA_ARGS__]
 
 
 /*
