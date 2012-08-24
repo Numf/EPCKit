@@ -7,7 +7,7 @@
 #import <CoreData/CoreData.h>
 
 @interface NSManagedObjectContext (EPCCoreDataCategories)
-- (NSSet *)fetchObjectsForEntityName:(NSString *)newEntityName
+- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
 					   withPredicate:(id)stringOrPredicate, ...;
 
 - (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName

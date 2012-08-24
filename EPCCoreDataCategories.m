@@ -7,7 +7,7 @@
 #import "EPCCoreDataCategories.h"
 
 @implementation NSManagedObjectContext (EPCCoreDataCategories)
-- (NSSet *)fetchObjectsForEntityName:(NSString *)newEntityName
+- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
 					   withPredicate:(id)stringOrPredicate, ... {
 	if (stringOrPredicate)
     {
@@ -31,8 +31,8 @@
     }
 	
 	NSArray *array = [self fetchObjectsForEntityName:newEntityName sortDescriptors:nil withPredicate:stringOrPredicate];
-	if (array)
-		return [NSSet setWithArray:array];
+	if ([array count] >0)
+		return array;
 	return nil;
 }
 - (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
