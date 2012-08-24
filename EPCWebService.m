@@ -43,6 +43,7 @@
 			operationQueue = [[NSOperationQueue alloc] init];
 		
 		EPCHTTPRequest *request = [EPCHTTPRequest requestWithURL:url delegate:self];
+		request.responseStringEncoding = [self responseStringEncoding];
 		[operationQueue addOperation:request];
 	}
 #ifdef DEBUG
@@ -63,6 +64,7 @@
 			operationQueue = [[NSOperationQueue alloc] init];
 		
 		EPCHTTPRequest *request = [EPCHTTPRequest requestWithURL:url delegate:self];
+		request.responseStringEncoding = [self responseStringEncoding];
 		[operationQueue addOperation:request];
 	}
 #ifdef DEBUG
@@ -194,10 +196,21 @@
 
 #pragma mark - Cache
 
--(void)deleteCache {
++ (BOOL)deleteAllCaches {
+	NSString *path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"EPCWSCache"];
+	NSError *error = nil;
+	NSFileManager *fm = [NSFileManager defaultManager];
+	if ([fm fileExistsAtPath:path])
+		[fm removeItemAtPath:path error:&error];
+	else
+		return NO;
+	return (error == nil);
+}
+
+-(BOOL)deleteCache {
+	NSError *error = nil;
 	@synchronized(self) {
 		NSString *path = [self cachePath];
-		NSError *error = nil;
 		NSFileManager *fm = [NSFileManager defaultManager];
 		if ([fm fileExistsAtPath:path]) {
 			[fm removeItemAtPath:path error:&error];
@@ -209,6 +222,7 @@
 		[cachePath release];
 		cachePath = nil;
 	}
+	return (error == nil);
 }
 
 -(void)deleteCacheForURLString:(NSString *)urlString {
@@ -228,6 +242,7 @@
 }
 
 -(void)saveRequestToCache:(EPCHTTPRequest *)request {
+	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	NSString *path = [self cachePath];
 	if (!path)
 		return;
@@ -242,6 +257,7 @@
 		NSLog(@"%s Warning: Error while writing file (%@). %@", __PRETTY_FUNCTION__, path, error);
 #endif
 	}
+	[pool drain];
 }
 
 - (NSString*)cachedResponseStringFromURLString:(NSString*)urlString {
@@ -298,6 +314,12 @@
 - (id)parseToObjectFromString:(NSString*)string pagination:(EPCPagination**)pagination error:(NSError**)error continueAfterError:(BOOL**)continueAfterError {
 	NSAssert(NO, @"Override this. %s", __PRETTY_FUNCTION__);
 	return nil;
+}
+
+#pragma mark - Optional Override
+
+- (NSStringEncoding)responseStringEncoding {
+	return NSUTF8StringEncoding;
 }
 
 #pragma mark - End Override
