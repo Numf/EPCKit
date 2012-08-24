@@ -39,6 +39,9 @@
 	self.delegate = nil;
 	self.error = nil;
 	[_responseData release];
+	[_responseString release];
+	_responseString = nil;
+	_responseData = nil;
     [super dealloc];
 }
 - (void)clearDelegatesAndCancel {
@@ -80,7 +83,9 @@
 }
 - (NSString *)responseString {
 	if (!_responseString && _responseData) {
-		_responseString = [[NSString alloc] initWithData:_responseData encoding:NSUTF8StringEncoding];
+		if (_responseStringEncoding == 0)
+			_responseStringEncoding = NSUTF8StringEncoding;
+		_responseString = [[NSString alloc] initWithData:_responseData encoding:_responseStringEncoding];
 	}
 	return _responseString;
 }

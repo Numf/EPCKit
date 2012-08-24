@@ -24,9 +24,10 @@
  Fired just before the request starts
  */
 - (void)epcHTTPRequestStarted:(EPCHTTPRequest *)request;
+
 @end
 
-@interface EPCHTTPRequest : NSOperation <EPCHTTPRequestDelegate>
+@interface EPCHTTPRequest : NSOperation
 /*
  Allocates the request.
  */
@@ -86,4 +87,9 @@
  The request URL.
  */
 @property (retain) NSURL *url;
+
+/*
+ The default is NSUTF8StringEncoding.
+ */
+@property (readwrite) NSStringEncoding responseStringEncoding;
 @end
