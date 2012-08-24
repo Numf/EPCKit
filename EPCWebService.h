@@ -19,6 +19,11 @@
 	*pagination = nil;
 	return nil;
 }
+
+// Optional to define a string enconding.
+- (NSStringEncoding)responseStringEncoding {
+	return NSUTF8StringEncoding;
+}
 */
 
 #import <Foundation/Foundation.h>
@@ -68,9 +73,14 @@
 - (void)clearDelegateAndCancel;
 
 /*
+ Delete all caches for all EPCWebService subclasses.
+ */
++ (BOOL)deleteAllCaches;
+
+/*
  Delete all caches for this WS subclass.
  */
-- (void)deleteCache;
+- (BOOL)deleteCache;
 
 /*
  Delete the cache of a given URL for this WS subclass.
