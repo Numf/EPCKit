@@ -6,24 +6,21 @@
 
 // You should subclass and override (copy-paste) the following methods:
 /*
+
 // The WS URL.
 - (NSString*)webServiceURL {
 	static NSString *urlString = @"";
 	return urlString;
 }
 
-// Parse the string to NSObject. (JSON/XML to Obj-C objects). This runs in a background thread.
-- (id)parseToObjectFromString:(NSString*)string pagination:(EPCPagination**)pagination error:(NSError**)error continueAfterError:(BOOL**)continueAfterError {
+// Parse the data to NSObject. (NSData to Obj-C objects). This runs in a background thread.
+- (id)parseToObjectFromData:(NSData*)data pagination:(EPCPagination**)pagination error:(NSError**)error continueAfterError:(BOOL**)continueAfterError {
 	*continueAfterError = NO;
 	*error = nil;
 	*pagination = nil;
 	return nil;
 }
 
-// Optional to define a string enconding.
-- (NSStringEncoding)responseStringEncoding {
-	return NSUTF8StringEncoding;
-}
 */
 
 #import <Foundation/Foundation.h>

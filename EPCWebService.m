@@ -75,7 +75,7 @@
 }
 
 -(void)requestCachedDataFromURLString:(NSString *)urlString {
-	NSString *cachedResponse = [self cachedResponseStringFromURLString:urlString];
+	NSData *cachedResponse = [self cachedDataFromURLString:urlString];
 	if (cachedResponse) {
 		[self performSelectorInBackground:@selector(convertToObjectFromRequest:) withObject:cachedResponse];
 	}
@@ -87,7 +87,7 @@
 // this is a copy fom requestCachedDataFromURLString:, because you may want override this and call super.
 -(void)requestDataFromCache {
 	NSString *urlString = [self webServiceURL];
-	NSString *cachedResponse = [self cachedResponseStringFromURLString:urlString];
+	NSData *cachedResponse = [self cachedDataFromURLString:urlString];
 	if (cachedResponse) {
 		[self performSelectorInBackground:@selector(convertToObjectFromRequest:) withObject:cachedResponse];
 	}
@@ -110,7 +110,12 @@
 }
 
 -(void)epcHTTPRequestFailed:(EPCHTTPRequest *)request {
-	[self.delegate epcWebService:self requestFailedWithError:request.error];
+	if ([self.delegate respondsToSelector:@selector(epcWebService:requestFailedWithError:)]) {
+		[self.delegate epcWebService:self requestFailedWithError:request.error];
+	}
+	else {
+		NSAssert(_delegate==nil, @"You forgot to implement the delegate for %@", NSStringFromClass([self class]));
+	}
 }
 
 -(void)epcHTTPRequestFinished:(EPCHTTPRequest *)request {
@@ -125,7 +130,7 @@
 
 #pragma mark - Threaded Parser
 
-- (void)convertToObjectFromRequest:(id)requestOrCachedString {
+- (void)convertToObjectFromRequest:(id)requestOrCachedData {
 	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	EPCPagination *pagination = nil;
 	NSError *error = nil;
@@ -134,18 +139,18 @@
 	
 	EPCHTTPRequest *request = nil;
 	
-	NSString *responseString = nil;
+	id responseData = nil;
 	
-	if ([requestOrCachedString isKindOfClass:[EPCHTTPRequest class]]) {
-		request = requestOrCachedString;
-		responseString = request.responseString;
+	if ([requestOrCachedData isKindOfClass:[EPCHTTPRequest class]]) {
+		request = requestOrCachedData;
+		responseData = request.responseData;
 	}
-	else if ([requestOrCachedString isKindOfClass:[NSString class]]) {
-		responseString = requestOrCachedString;
+	else if ([requestOrCachedData isKindOfClass:[NSData class]]) {
+		responseData = requestOrCachedData;
 		isCache = YES;
 	}
 	
-	id parsedObj = [self parseToObjectFromString:responseString pagination:&pagination error:&error continueAfterError:&continueAftError];
+	id parsedObj = [self parseToObjectFromData:responseData pagination:&pagination error:&error continueAfterError:&continueAftError];
 	
 	NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:5];
 	
@@ -178,20 +183,30 @@
 }
 
 - (void)requestHasFinished:(NSDictionary*)dict {
-	id data = [dict objectForKey:@"obj"];
-	EPCPagination *pagination = [dict objectForKey:@"pag"];
-	EPCHTTPRequest *request = [dict objectForKey:@"req"];
-	NSError *error = [dict objectForKey:@"err"];
-	BOOL isCache = [[dict objectForKey:@"cac"] boolValue];
-	
-	[self.delegate epcWebService:self returnedData:data pagination:pagination isCache:isCache url:request.url parseError:error];
+	if ([self.delegate respondsToSelector:@selector(epcWebService:returnedData:pagination:isCache:url:parseError:)]) {
+		id data = [dict objectForKey:@"obj"];
+		EPCPagination *pagination = [dict objectForKey:@"pag"];
+		EPCHTTPRequest *request = [dict objectForKey:@"req"];
+		NSError *error = [dict objectForKey:@"err"];
+		BOOL isCache = [[dict objectForKey:@"cac"] boolValue];
+		
+		[self.delegate epcWebService:self returnedData:data pagination:pagination isCache:isCache url:request.url parseError:error];
+	}
+	else {
+		NSAssert(_delegate==nil, @"You forgot to implement the delegate for %@", NSStringFromClass([self class]));
+	}
 }
 
 - (void)requestEnconteredError:(NSDictionary*)dict {
-	NSError *error = [dict objectForKey:@"err"];
-	EPCHTTPRequest *request = [dict objectForKey:@"req"];
-	
-	[self.delegate epcWebService:self encounteredError:error parsingURL:request.url];
+	if ([self.delegate respondsToSelector:@selector(epcWebService:encounteredError:parsingURL:)]) {
+		NSError *error = [dict objectForKey:@"err"];
+		EPCHTTPRequest *request = [dict objectForKey:@"req"];
+		
+		[self.delegate epcWebService:self encounteredError:error parsingURL:request.url];
+	}
+	else {
+		NSAssert(_delegate==nil, @"You forgot to implement the delegate for %@", NSStringFromClass([self class]));
+	}
 }
 
 #pragma mark - Cache
@@ -260,7 +275,7 @@
 	[pool drain];
 }
 
-- (NSString*)cachedResponseStringFromURLString:(NSString*)urlString {
+- (NSData*)cachedDataFromURLString:(NSString*)urlString {
 	NSString *storePath = [self cachePath];
 	if (!storePath)
 		return nil;
@@ -270,14 +285,14 @@
 	
 	if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
 		NSError *error = nil;
-		NSString *string = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
+		NSData *data = [NSData dataWithContentsOfFile:path options:NSDataReadingUncached error:&error];
 		if (error) {
 #ifdef DEBUG
 			NSLog(@"%s Warning: Error while trying to load cache file (%@). %@", __PRETTY_FUNCTION__, path, error);
 #endif
 			return nil;
 		}
-		return string;
+		return data;
 	}
 	
 	return nil;
@@ -311,8 +326,20 @@
 	return nil;
 }
 
+- (id)parseToObjectFromData:(NSData*)data pagination:(EPCPagination**)pagination error:(NSError**)error continueAfterError:(BOOL**)continueAfterError {
+	if ([self class] != [EPCWebService class] && [self respondsToSelector:@selector(parseToObjectFromString:pagination:error:continueAfterError:)]) {
+		// supporting older implementations
+		NSString *string = [[NSString alloc] initWithData:data encoding:[self responseStringEncoding]];
+		return [self parseToObjectFromString:string pagination:pagination error:error continueAfterError:continueAfterError];
+	}
+	else
+		NSAssert(NO, @"Override this. %s", __PRETTY_FUNCTION__);
+	
+	return nil;
+}
+
 - (id)parseToObjectFromString:(NSString*)string pagination:(EPCPagination**)pagination error:(NSError**)error continueAfterError:(BOOL**)continueAfterError {
-	NSAssert(NO, @"Override this. %s", __PRETTY_FUNCTION__);
+	NSAssert(NO, @"Deprecated. %s", __PRETTY_FUNCTION__);
 	return nil;
 }
 
