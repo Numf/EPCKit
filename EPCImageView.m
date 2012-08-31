@@ -59,10 +59,16 @@
 
 -(void)setImageByURL:(NSURL *)url {
 
+	BOOL cancelledARequest = ([operationQueue operationCount] > 0);
+		
 	[operationQueue cancelAllOperations];
 	
 	if (!operationQueue)
 		operationQueue = [NSOperationQueue new];
+	
+	if (cancelledARequest) {
+		[self requestWasCancelledForURL:currentURL];
+	}
 	
 	[currentURL release];
 	currentURL = nil;
@@ -75,7 +81,7 @@
 		
 		currentURL = [url retain];
 		
-		if (!actView) {
+		if (!actView && !self.hideActivityIndicator) {
 			actView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
 			actView.hidesWhenStopped = YES;
 			if ([self.delegate respondsToSelector:@selector(epcImageView:frameForActivityIndicatorView:)])
@@ -100,6 +106,10 @@
 		GrabImageOperation *operation = [GrabImageOperation grabImageOperationWithURL:currentURL epcImageView:self];
 		[operationQueue addOperation:operation];
 	}
+}
+
+- (NSURL *)imageURL {
+	return currentURL;
 }
 
 - (void)setFrame:(CGRect)frame {
@@ -135,6 +145,20 @@
 	}
 }
 
+- (void)requestWillStartWithURL:(NSURL*)url {
+	if ([self.delegate respondsToSelector:@selector(epcImageView:willStartRequestForURL:)])
+		[self.delegate epcImageView:self willStartRequestForURL:url];
+}
+
+- (void)requestWasCancelledForURL:(NSURL*)url {
+	if ([self.delegate respondsToSelector:@selector(epcImageView:finishedRequestForURL:wasCancelled:)])
+		[self.delegate epcImageView:self finishedRequestForURL:url wasCancelled:YES];
+}
+
+- (void)requestFinishedForURL:(NSURL*)url {
+	if ([self.delegate respondsToSelector:@selector(epcImageView:finishedRequestForURL:wasCancelled:)])
+		[self.delegate epcImageView:self finishedRequestForURL:url wasCancelled:NO];
+}
 
 @end
 
@@ -190,7 +214,7 @@
 			if (!grabbedImage) {
 				
 				imageIsFromCache = NO;
-				
+				[self.epcImageView performSelectorOnMainThread:@selector(requestWillStartWithURL:) withObject:url waitUntilDone:YES];
 				self.downloadedData = [NSData dataWithContentsOfURL:url];
 				if ([self isCancelled])
 					break;
@@ -213,6 +237,9 @@
 				}
 				else {
 					// downloaded
+					[self.epcImageView performSelectorOnMainThread:@selector(requestFinishedForURL:) withObject:url waitUntilDone:YES];
+					if ([self isCancelled])
+						break;
 					[self.epcImageView performSelectorOnMainThread:@selector(downloadedImageFromOperation:) withObject:self waitUntilDone:YES];
 				}
 			}
