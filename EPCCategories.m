@@ -102,6 +102,12 @@
 			result[12], result[13], result[14], result[15]
 			];
 }
+- (NSURL*)urlSafe {
+	NSURL *url = [NSURL URLWithString:self];
+	if (!url)
+		url = [NSURL URLWithString:[self stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+	return url;
+}
 @end
 
 @implementation UIViewController (EPCCategories)
@@ -113,5 +119,27 @@
 		if ([self respondsToSelector:@selector(viewDidUnload)])
 			[self viewDidUnload];	
 	}
+}
+@end
+
+@implementation UIImage (EPCCategories)
++(UIImage *)imageWithContentsOfFileNamed:(NSString *)name {
+	return [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:[name stringByDeletingPathExtension] ofType:[name pathExtension]]];
+}
++(UIImage *)imageWithContentsOfFileInDocumentsDirectoryNamed:(NSString *)name {
+	static id docDir = nil;
+	if (!docDir)
+		docDir = [[[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] path] copy];
+	return [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:[name stringByDeletingPathExtension] ofType:[name pathExtension]]];
+}
+@end
+
+@implementation UIApplication (EPCCategories)
++ (NSString *)documentsDirectoryPath {
+	static id dir = nil;
+	if (!dir) {
+		dir = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] copy];
+	}
+	return dir;
 }
 @end
