@@ -14,21 +14,30 @@
  isFromCache can either be from EPCImageView cache or because you gave an UIImage in epcImageView:imageForURL:.
  */
 - (void)epcImageView:(EPCImageView*)epcImageView isShowingImage:(UIImage*)image fromURL:(NSURL*)url isFromCache:(BOOL)isFromCache data:(NSData*)data;
-
 /*
  When EPCImageView fails to load given URL.
  */
 - (void)epcImageView:(EPCImageView*)epcImageView failedLoadingURL:(NSURL*)url;
 
 /*
- If EPCImageView should handle given URL, or ignore.
+ When a internet request will start.
  */
-- (BOOL)epcImageView:(EPCImageView*)epcImageView shouldHandleImageForURL:(NSURL*)url;
+- (void)epcImageView:(EPCImageView*)epcImageView willStartRequestForURL:(NSURL*)url;
+
+/*
+ When the internet request finishes.
+ */
+- (void)epcImageView:(EPCImageView*)epcImageView finishedRequestForURL:(NSURL *)url wasCancelled:(BOOL)cancelled;
 
 /*
  You can provide an UIImage for a given URL. This will be handle as cache and will prevent the request.
  */
 - (UIImage*)epcImageView:(EPCImageView*)epcImageView imageForURL:(NSURL*)url;
+
+/*
+ If EPCImageView should handle given URL, or ignore.
+ */
+- (BOOL)epcImageView:(EPCImageView*)epcImageView shouldHandleImageForURL:(NSURL*)url;
 
 /*
  You can provide a frame for the default UIActivityIndicatorView.
@@ -55,14 +64,24 @@
 - (void)setImageByURL:(NSURL*)url;
 
 /*
+ The delegate.
+ */
+@property (nonatomic, assign) IBOutlet id<EPCImageViewDelegate> delegate;
+
+/*
  You can set your own cache. It also should work with NSMutableDictionary.
  */
 @property (nonatomic, assign) NSCache *imageCache;
 
 /*
- The delegate.
- */
-@property (nonatomic, assign) IBOutlet id<EPCImageViewDelegate> delegate;
+ The image URL.
+*/
+@property (nonatomic, readonly) NSURL *imageURL;
+
+/*
+ Set YES to prevent UIActivityIndicatorView allocation.
+*/
+@property (nonatomic, readwrite) BOOL hideActivityIndicator;
 @end
 
 
