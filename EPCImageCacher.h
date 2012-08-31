@@ -9,5 +9,6 @@
 #import <Foundation/Foundation.h>
 
 @interface EPCImageCacher : NSObject
-
++ (void)saveImageData:(NSData*)imageData withKey:(NSString*)key toFolderName:(NSString*)folderName;
++ (UIImage*)imageForKey:(NSString*)key fromFolderName:(NSString*)folderName;
 @end
