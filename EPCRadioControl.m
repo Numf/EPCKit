@@ -1,15 +1,13 @@
 //
-//  RadioControl.m
-//  BradescoRIApp
+//  EPCRadioControl.m
 //
-//  Created by AG2 on 14/06/11.
-//  Copyright 2011 Bradesco. All rights reserved.
+//  Created by Everton Postay Cunha on 14/06/11.
 //
 
-#import "RadioControl.h"
+#import "EPCRadioControl.h"
 
 
-@implementation RadioControl
+@implementation EPCRadioControl
 
 @synthesize buttons;
 

@@ -1,15 +1,13 @@
 //
-//  RadioControl.h
-//  BradescoRIApp
+//  EPCRadioControl.h
 //
-//  Created by AG2 on 14/06/11.
-//  Copyright 2011 Bradesco. All rights reserved.
+//  Created by Everton Postay Cunha on 14/06/11.
 //
 
 #import <Foundation/Foundation.h>
 
 
-@interface RadioControl : NSObject {
+@interface EPCRadioControl : NSObject {
 }
 
 - (id)initWithButtons:(NSArray *)btns;
