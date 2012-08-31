@@ -69,14 +69,22 @@
     }
 	
     NSError *error = nil;
-    NSArray *results = [self executeFetchRequest:request error:&error];
+	NSArray *results = nil;
+	@try {
+		results = [self executeFetchRequest:request error:&error];
+	}
+	@catch (NSException *ex) {
+		DLog(@"%@", ex);
+		return nil;
+	}
     if (error != nil)
     {
-        [NSException raise:NSGenericException format:@"%@",[error description]];
+		DLog(@"%@", error);
     }
-	
-	if ([results count] > 0)
-		return results;
+	else {
+		if ([results count] > 0)
+			return results;
+	}
 	return nil;
 }
 
