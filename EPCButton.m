@@ -10,6 +10,13 @@
 @implementation EPCButton
 @synthesize dataObject, epcImageView;
 
+- (void)dealloc
+{
+    self.dataObject = nil;
+	epcImageView.delegate = nil;
+    [super dealloc];
+}
+
 - (EPCImageView *)epcImageView {
 	if (!epcImageView) {
 		epcImageView = [[EPCImageView alloc] initWithFrame:self.bounds];
