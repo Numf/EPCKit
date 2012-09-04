@@ -12,6 +12,14 @@
 + (id)loadFromNib {
 	return [[[NSBundle mainBundle] loadNibNamed:NSStringFromClass(self) owner:nil options:nil] lastObject];
 }
+- (UIImage*)renderToImage
+{
+	UIGraphicsBeginImageContextWithOptions(self.frame.size, NO, 0.0);
+	[self.layer renderInContext:UIGraphicsGetCurrentContext()];
+	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+	return image;
+}
 - (CGPoint)frameOrigin {
 	return self.frame.origin;
 }
@@ -107,6 +115,22 @@
 	if (!url)
 		url = [NSURL URLWithString:[self stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 	return url;
+}
+- (NSString*)substringTruncatingToLength:(int)limit tail:(NSString*)tail {
+	NSString *text = self;
+	if ([text length] > limit) {
+		if ([[text substringWithRange:NSMakeRange(limit, 1)] isEqualToString:@" "]) {
+			// end not breaking a word
+			text = [text substringToIndex:limit];
+		}
+		else {
+			// don't break a word
+			NSRange range = [text rangeOfString:@" " options:NSBackwardsSearch range:NSMakeRange(0, limit)];
+			text = [text substringToIndex:range.location];
+		}
+		text = [text stringByAppendingString:tail];
+	}
+	return text;
 }
 @end
 

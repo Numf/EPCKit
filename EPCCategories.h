@@ -17,6 +17,7 @@
 
 @interface UIView (EPCCategories)
 + (id)loadFromNib;
+- (UIImage*)renderToImage;
 @property (nonatomic) CGPoint frameOrigin;
 @property (nonatomic) CGSize frameSize;
 @property (nonatomic) CGFloat frameX;
@@ -39,4 +40,5 @@
 @interface NSString (EPCCategories)
 - (NSString*)md5;
 - (NSURL*)urlSafe;
+- (NSString*)substringTruncatingToLength:(int)length tail:(NSString*)tail;
 @end
