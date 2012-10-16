@@ -8,7 +8,7 @@
 
 @interface MKMapView (EPCMapKitCategories)
 
-- (void)zoomToFitMapAnnotations:(BOOL)animated;
+- (void)zoomToFitMapAnnotationsAnimated:(BOOL)animated;
 
 - (void)zoomToUserLocationAnimated:(BOOL)animated;
 

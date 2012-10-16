@@ -8,7 +8,7 @@
 #import "EPCDefines.h"
 
 @implementation MKMapView (EPCMapKitCategories)
--(void)zoomToFitMapAnnotations:(BOOL)animated
+-(void)zoomToFitMapAnnotationsAnimated:(BOOL)animated
 {
     CLLocationCoordinate2D topLeftCoord;
     topLeftCoord.latitude = -90;
