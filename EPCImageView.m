@@ -160,6 +160,9 @@
 		[self.delegate epcImageView:self finishedRequestForURL:url wasCancelled:NO];
 }
 
+- (BOOL)isRequesting {
+	return [operationQueue operationCount] > 0;
+}
 @end
 
 

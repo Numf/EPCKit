@@ -75,12 +75,17 @@
 
 /*
  The image URL.
-*/
+ */
 @property (nonatomic, readonly) NSURL *imageURL;
 
 /*
+ Returns if is currently requesting an image.
+ */
+@property (readonly) BOOL isRequesting;
+
+/*
  Set YES to prevent UIActivityIndicatorView allocation.
-*/
+ */
 @property (nonatomic, readwrite) BOOL hideActivityIndicator;
 @end
 
