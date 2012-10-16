@@ -12,7 +12,7 @@
 
 
 /*
- Andle helpers.
+ Angle helpers.
  */
 #define degreesToRadians(x) (M_PI * (x) / 180.0)
 #define radiansToDegrees(x) (180.0*(x)/ M_PI)
@@ -39,3 +39,9 @@
 #else
 #    define DLog(...) /* */
 #endif
+
+
+/*
+ Device
+ */
+#define DEVICE_IS_IPAD (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
