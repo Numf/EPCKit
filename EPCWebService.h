@@ -15,7 +15,7 @@
 
 // Parse the data to NSObject. (NSData to Obj-C objects). This runs in a background thread.
 - (id)parseToObjectFromData:(NSData*)data pagination:(EPCPagination**)pagination error:(NSError**)error continueAfterError:(BOOL**)continueAfterError {
-	*continueAfterError = NO;
+	*continueAfterError = (BOOL*)NO;
 	*error = nil;
 	*pagination = nil;
 	return nil;

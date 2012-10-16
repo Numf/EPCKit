@@ -164,7 +164,7 @@
 		[self performSelectorOnMainThread:@selector(requestEnconteredError:) withObject:dict waitUntilDone:YES];
 	}
 	
-	if (parsedObj && (!error || continueAftError)) {
+	if (!error || continueAftError) {
 		
 		[dict setObject:[NSNumber numberWithBool:isCache] forKey:@"cac"];
 		if (error)
