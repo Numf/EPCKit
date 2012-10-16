@@ -9,19 +9,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
-@class EPCGallery;
-@protocol EPCGalleryDelegate <NSObject>
-@required
-- (UIView*)epcGallery:(EPCGallery*)epcGallery viewForPage:(int)page;
-- (int)epcGalleryNumberOfPages:(EPCGallery*)epcGallery;
-@optional
-- (void)epcGallery:(EPCGallery*)epcGallery changedToPage:(int)page;
-- (BOOL)epcGallery:(EPCGallery *)epcGallery shouldAdjustFrameForView:(UIView*)view;
-- (void)epcGallery:(EPCGallery *)epcGallery willBeginZoomingWithView:(UIView*)view;
-- (void)epcGallery:(EPCGallery *)epcGallery didEndZoomingAtScale:(float)scale;
-@end
-
+#import "EPCGalleryDelegate.h"
 
 @interface EPCGallery : UIView <UIScrollViewDelegate>
 
