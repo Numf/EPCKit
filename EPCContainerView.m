@@ -8,10 +8,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import "EPCCategories.h"
 
-#define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
-
 @implementation EPCContainerView
-@synthesize delegate, pushedViewControllers,containerViewController;
+@synthesize delegate, pushedViewControllers;
 
 - (void)dealloc {
     for (UIView *vv in self.subviews)
@@ -21,6 +19,34 @@
     [super dealloc];
 }
 
+- (void)removeAllViewControllersAnimated:(BOOL)animated {
+	
+	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
+	
+	[pushedViewControllers removeAllObjects];
+	
+	if (!animated)
+	{
+		for (UIView *sub in self.subviews)
+			[sub removeFromSuperview];
+	}
+	else
+	{
+		
+		[UIView beginAnimations:@"pop" context:nil];
+		[UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+		[UIView setAnimationDuration:0.333f];
+		[UIView setAnimationDelegate:self];
+		self.userInteractionEnabled = NO;
+		for (UIView *sub in self.subviews) {
+			[sub setFrameX:self.frame.size.width];
+		}
+		[UIView commitAnimations];
+	}
+	
+	if ([self.delegate respondsToSelector:@selector(epcContainerView:poppedFromViewController:toViewController:animated:)])
+		[self.delegate epcContainerView:self poppedFromViewController:fromViewController toViewController:nil animated:animated];
+}
 
 -(void)pushNewRootViewController:(UIViewController *)newViewController animated:(BOOL)animated {
 	NSAssert((newViewController != nil), @"Trying to push nil");
@@ -41,6 +67,7 @@
         
 		for (UIView *sub in self.subviews)
 			[sub removeFromSuperview];
+		[newViewController.view setFrameX:0];
 		[self addSubview:newViewController.view];
 	}
 	else {
@@ -264,6 +291,7 @@
 
 
 @implementation UIView (container)
+
 - (EPCContainerView *)containerView {
 	UIView *view = self.superview;
 	
@@ -279,6 +307,7 @@
 @end
 
 @implementation UIViewController (container)
+
 - (EPCContainerView *)containerView {
 	UIView *view = self.view.superview;
 	

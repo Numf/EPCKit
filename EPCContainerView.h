@@ -31,10 +31,11 @@
 
 - (BOOL)canPop;
 
+- (void)removeAllViewControllersAnimated:(BOOL)animated;
+
 @property (nonatomic, readonly) UIViewController *visibleViewController;
 @property (nonatomic, readonly) NSArray *pushedViewControllers;
 @property (nonatomic, assign) IBOutlet id<EPCContainerViewDelegate>delegate;
-@property (nonatomic, assign) IBOutlet UIViewController *containerViewController;
 
 @end
 
