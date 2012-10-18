@@ -41,9 +41,9 @@
 
 
 @interface UIView (container)
-- (EPCContainerView *)containerView;
+- (EPCContainerView *)epcContainerView;
 @end
 
 @interface UIViewController (container)
-- (EPCContainerView *)containerView;
+- (EPCContainerView *)epcContainerView;
 @end

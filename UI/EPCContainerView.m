@@ -292,7 +292,7 @@
 
 @implementation UIView (container)
 
-- (EPCContainerView *)containerView {
+- (EPCContainerView *)epcContainerView {
 	UIView *view = self.superview;
 	
 	while (view != nil && ![view isKindOfClass:[EPCContainerView class]])
@@ -308,7 +308,7 @@
 
 @implementation UIViewController (container)
 
-- (EPCContainerView *)containerView {
+- (EPCContainerView *)epcContainerView {
 	UIView *view = self.view.superview;
 	
 	while (view != nil && ![view isKindOfClass:[EPCContainerView class]])
