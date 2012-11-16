@@ -4,20 +4,21 @@
 //  Created by Everton Postay Cunha on 25/07/12.
 //
 
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
-
 @interface UIApplication (EPCCategories)
 + (NSString *)documentsDirectoryPath;
++ (NSString *)cacheDirectoryPath;
 @end
 
 @interface UIImage (EPCCategories)
 + (UIImage*)imageWithContentsOfFileNamed:(NSString*)name; /* this prevents caching the image object */
-+(UIImage *)imageWithContentsOfFileInDocumentsDirectoryNamed:(NSString *)name;
++ (UIImage*)imageWithContentsOfFileInDocumentsDirectoryNamed:(NSString *)name;
++(UIImage *)imageWithContentsOfFileInCacheDirectoryNamed:(NSString *)name;
 @end
 
 @interface UIView (EPCCategories)
 + (id)loadFromNib;
-- (UIImage*)renderToImageOfSize:(CGSize)size opaque:(BOOL)opaque;
 - (void)removeAllSubviews;
 - (void)removeAllSubviewsOfClass:(Class)aClass;
 @property (nonatomic) CGPoint frameOrigin;
@@ -39,6 +40,24 @@
 - (void)ajustToHeightAndStopBouncing;
 @end
 
+#endif
+
+@interface NSUserDefaults (EPCCategories)
++ (BOOL)syncBool:(BOOL)value forKey:(NSString*)key;
++ (BOOL)boolForKey:(NSString*)key;
++ (BOOL)syncObject:(id)object forKey:(NSString*)key;
++ (id)objectForKey:(NSString*)key;
+@end
+
+@interface NSArray (EPCCategories)
+- (NSArray*)sortedArrayWithKey:(NSString*)property ascending:(BOOL)asc;
+- (NSArray*)sortedArrayUsingArray:(NSArray*)otherArray;
+@end
+
+@interface NSSet (EPCCategories)
+- (NSArray*)sortedArrayWithKey:(NSString*)property ascending:(BOOL)asc;
+@end
+
 @interface NSDate (EPCCategories)
 @property (readonly) NSString *day;
 @property (readonly) NSString *hours;
@@ -50,9 +69,15 @@
 
 @interface NSString (EPCCategories)
 - (NSString*)md5;
+- (NSString*)sha1;
 - (NSURL*)urlSafe;
 - (NSString*)stringByTruncatingToLength:(int)length tail:(NSString*)tail;
-- (NSString *)stringByRemovingCharacterSet:(NSCharacterSet*)characterSet;
-- (NSString *)stringByRemovingNewLinesAndWhitespace;
+- (NSString*)stringByRemovingCharacterSet:(NSCharacterSet*)characterSet;
+- (NSString*)stringByRemovingNewLinesAndWhitespace;
 - (NSArray*)arrayByExplodingWithString:(NSString*)string;
+- (NSString*)phpURLEncoded;
+- (NSString*)stringByFirstCharCapital;
+#if TARGET_OS_IPHONE
+- (BOOL)excludePathFromBackup;
+#endif
 @end

@@ -7,15 +7,56 @@
 #import "EPCCategories.h"
 #import "EPCDefines.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <sys/xattr.h>
+
+#if TARGET_OS_IPHONE
+@implementation UIViewController (EPCCategories)
+-(void)unloadView {
+	if(!IOS_VERSION_LESS_THAN(@"6.0")) {
+		if ([self respondsToSelector:@selector(viewWillUnload)])
+			[self viewWillUnload];
+		self.view = nil;
+		if ([self respondsToSelector:@selector(viewDidUnload)])
+			[self viewDidUnload];
+	}
+}
+@end
+
+@implementation UIImage (EPCCategories)
++(UIImage *)imageWithContentsOfFileNamed:(NSString *)name {
+	return [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:[name stringByDeletingPathExtension] ofType:[name pathExtension]]];
+}
++(UIImage *)imageWithContentsOfFileInDocumentsDirectoryNamed:(NSString *)name {
+	return [UIImage imageWithContentsOfFile:[[UIApplication documentsDirectoryPath] stringByAppendingPathComponent:name]];
+}
++(UIImage *)imageWithContentsOfFileInCacheDirectoryNamed:(NSString *)name {
+	return [UIImage imageWithContentsOfFile:[[UIApplication cacheDirectoryPath] stringByAppendingPathComponent:name]];
+}
+@end
+
+@implementation UIApplication (EPCCategories)
++ (NSString *)documentsDirectoryPath {
+	static id dir = nil;
+	if (!dir) {
+		dir = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] copy];
+	}
+	return dir;
+}
++ (NSString *)cacheDirectoryPath {
+	static id cachedir = nil;
+	if (!cachedir) {
+		cachedir = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0] copy];
+	}
+	return cachedir;
+}
+@end
 
 @implementation UIView (EPCCategories)
 + (id)loadFromNib {
 	return [[[NSBundle mainBundle] loadNibNamed:NSStringFromClass(self) owner:nil options:nil] lastObject];
 }
 - (void)removeAllSubviews {
-	for (UIView *sub in self.subviews) {
-		[sub removeFromSuperview];
-	}
+	[self.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
 }
 - (void)removeAllSubviewsOfClass:(Class)aClass {
 	for (UIView *sub in self.subviews) {
@@ -23,17 +64,6 @@
 			[sub removeFromSuperview];
 		}
 	}
-}
-- (UIImage*)renderToImageOfSize:(CGSize)size opaque:(BOOL)opaque
-{
-	CGRect originalRect = self.frame;
-	self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, size.width, size.height);
-	UIGraphicsBeginImageContextWithOptions(self.frame.size, opaque, 0.0);
-	[self.layer renderInContext:UIGraphicsGetCurrentContext()];
-	UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-	UIGraphicsEndImageContext();
-	self.frame = originalRect;
-	return image;
 }
 - (CGPoint)frameOrigin {
 	return self.frame.origin;
@@ -110,6 +140,54 @@
 	}
 }
 @end
+#endif
+
+#pragma mark - End iOS Only -
+
+@implementation NSUserDefaults (EPCCategories)
++ (BOOL)syncBool:(BOOL)value forKey:(NSString*)key {
+	NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+	[ud setBool:value forKey:key];
+	return [ud synchronize];
+}
++ (BOOL)boolForKey:(NSString*)key {
+	return [[NSUserDefaults standardUserDefaults] boolForKey:key];
+}
++ (BOOL)syncObject:(id)object forKey:(NSString*)key {
+	NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+	[ud setObject:object forKey:key];
+	return [ud synchronize];
+}
++ (id)objectForKey:(NSString*)key {
+	return [[NSUserDefaults standardUserDefaults] objectForKey:key];
+}
+@end
+
+@implementation	NSArray (EPCCategories)
+- (NSArray *)sortedArrayWithKey:(NSString *)key ascending:(BOOL)asc {
+	return [self sortedArrayUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:key ascending:asc]]];
+}
+static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *context) {
+    NSUInteger index1 = [(NSArray *)context indexOfObject:object1];
+    NSUInteger index2 = [(NSArray *)context indexOfObject:object2];
+    if (index1 < index2)
+        return NSOrderedAscending;
+    // else
+    if (index1 > index2)
+        return NSOrderedDescending;
+    // else
+    return [object1 compare:object2];
+}
+- (NSArray *)sortedArrayUsingArray:(NSArray *)otherArray {
+    return [self sortedArrayUsingFunction:comparatorForSortingUsingArray context:otherArray];
+}
+@end
+
+@implementation	NSSet (EPCCategories)
+- (NSArray *)sortedArrayWithKey:(NSString *)key ascending:(BOOL)asc {
+	return [self sortedArrayUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:key ascending:asc]]];
+}
+@end
 
 @implementation NSString (EPCCategories)
 - (NSArray*)arrayByExplodingWithString:(NSString*)string {
@@ -136,7 +214,7 @@
 {
     const char *cStr = [self UTF8String];
     unsigned char result[16];
-    CC_MD5( cStr, strlen(cStr), result ); // This is the md5 call
+    CC_MD5( cStr, (CC_LONG)strlen(cStr), result ); // This is the md5 call
     return [NSString stringWithFormat:
 			@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 			result[0], result[1], result[2], result[3],
@@ -145,11 +223,38 @@
 			result[12], result[13], result[14], result[15]
 			];
 }
+- (NSString *)sha1 {
+	NSString *str = self;
+	const char *cStr = [str UTF8String];
+	unsigned char result[CC_SHA1_DIGEST_LENGTH];
+	CC_SHA1(cStr, (CC_LONG)strlen(cStr), result);
+	NSString *s = [NSString  stringWithFormat:
+				   @"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+				   result[0], result[1], result[2], result[3], result[4],
+				   result[5], result[6], result[7],
+				   result[8], result[9], result[10], result[11], result[12],
+				   result[13], result[14], result[15],
+				   result[16], result[17], result[18], result[19]
+				   ];
+	
+    return s;
+}
 - (NSURL*)urlSafe {
 	NSURL *url = [NSURL URLWithString:self];
 	if (!url)
 		url = [NSURL URLWithString:[self stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 	return url;
+}
+-(NSString *)phpURLEncoded {
+	NSMutableString *str = [[NSMutableString alloc] initWithString:[self stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding]];
+	[str replaceOccurrencesOfString:@":" withString:@"%3A" options:NSLiteralSearch range:NSMakeRange(0, [str length])];
+	[str replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSLiteralSearch range:NSMakeRange(0, [str length])];
+	[str replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSLiteralSearch range:NSMakeRange(0, [str length])];
+	[str replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSLiteralSearch range:NSMakeRange(0, [str length])];
+	[str replaceOccurrencesOfString:@"&" withString:@"%26" options:NSLiteralSearch range:NSMakeRange(0, [str length])];
+	NSString *encodedString = [[str copy] autorelease];
+	[str release];
+	return encodedString;
 }
 - (NSString*)stringByTruncatingToLength:(int)limit tail:(NSString*)tail {
 	NSString *text = self;
@@ -203,40 +308,46 @@
 													  [NSString stringWithFormat:@" \t\n\r%d%d%d%d", 0x0085, 0x000C, 0x2028, 0x2029]];
 	return [self stringByRemovingCharacterSet:newLineAndWhitespaceCharacters];
 }
-@end
 
-@implementation UIViewController (EPCCategories)
--(void)unloadView {
-	if(!IOS_VERSION_LESS_THAN(@"6.0")) {
-		if ([self respondsToSelector:@selector(viewWillUnload)])
-			[self viewWillUnload];
-		self.view = nil;
-		if ([self respondsToSelector:@selector(viewDidUnload)])
-			[self viewDidUnload];	
+- (NSString *)stringByFirstCharCapital {
+	if ([self length] > 0) {
+		return [self stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[self substringToIndex:1] uppercaseString]];
 	}
+	return self;
 }
-@end
 
-@implementation UIImage (EPCCategories)
-+(UIImage *)imageWithContentsOfFileNamed:(NSString *)name {
-	return [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:[name stringByDeletingPathExtension] ofType:[name pathExtension]]];
-}
-+(UIImage *)imageWithContentsOfFileInDocumentsDirectoryNamed:(NSString *)name {
-	static id docDir = nil;
-	if (!docDir)
-		docDir = [[[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] path] copy];
-	return [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:[name stringByDeletingPathExtension] ofType:[name pathExtension]]];
-}
-@end
-
-@implementation UIApplication (EPCCategories)
-+ (NSString *)documentsDirectoryPath {
-	static id dir = nil;
-	if (!dir) {
-		dir = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0] copy];
+#if TARGET_OS_IPHONE
+-(BOOL)excludePathFromBackup {
+	NSURL *url = [[NSURL alloc] initFileURLWithPath:self];
+	
+	if ([[[UIDevice currentDevice] systemVersion] isEqualToString:@"5.0.1"]) {
+		assert([[NSFileManager defaultManager] fileExistsAtPath: self]);
+		
+		const char* filePath = [[url path] fileSystemRepresentation];
+		
+		const char* attrName = "com.apple.MobileBackup";
+		u_int8_t attrValue = 1;
+		
+		int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+		assert(result);
+		return result == 0;
 	}
-	return dir;
+	else if (!IOS_VERSION_LESS_THAN(@"5.0.1")) {
+		assert([[NSFileManager defaultManager] fileExistsAtPath: self]);
+		
+		NSError *error = nil;
+		BOOL success = [url setResourceValue: [NSNumber numberWithBool: YES]
+									  forKey: NSURLIsExcludedFromBackupKey error: &error];
+		if(!success){
+			NSLog(@"Error excluding %@ from backup %@", [url lastPathComponent], error);
+		}
+		[url release];
+		assert(success);
+		return success;
+	}
+	return YES; // ios 5 and earlier can't ignore files from backup, so we just return yes to ignore error alerts.
 }
+#endif
 @end
 
 @implementation NSDate (EPCCategories)
