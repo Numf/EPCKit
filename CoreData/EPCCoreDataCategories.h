@@ -7,15 +7,13 @@
 #import <CoreData/CoreData.h>
 
 @interface NSManagedObjectContext (EPCCoreDataCategories)
-- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
-					   withPredicate:(id)stringOrPredicate, ...;
+- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName withPredicate:(id)stringOrPredicate, ...;
 
-- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
-					 sortDescriptors:(NSArray*)sortDescriptors
-					   withPredicate:(id)stringOrPredicate, ...;
+- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName sortDescriptors:(NSArray*)sortDescriptors withPredicate:(id)stringOrPredicate, ...;
 
-- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName
-							   orderBy:(NSString*)orderBy
-							 ascending:(BOOL)ascending
-						 withPredicate:(id)stringOrPredicate, ...;
+- (NSArray *)fetchObjectsForEntityName:(NSString *)newEntityName orderBy:(NSString*)orderBy ascending:(BOOL)ascending withPredicate:(id)stringOrPredicate, ...;
+@end
+
+@interface NSManagedObject (EPCCoreDataCategories)
+- (NSArray *)arrayOfValueForKeyPath:(NSString*)key;
 @end

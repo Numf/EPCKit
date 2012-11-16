@@ -119,3 +119,24 @@
 	return [self fetchObjectsForEntityName:newEntityName sortDescriptors:nil withPredicate:stringOrPredicate];
 }
 @end
+
+@implementation NSManagedObject (EPCCoreDataCategories)
+- (void)arrayOfValueForKeyPath:(id)obj inArray:(NSMutableArray*)array {
+	if ([obj isKindOfClass:[NSSet class]]) {
+		for (id obj2 in obj) {
+			[self arrayOfValueForKeyPath:obj2 inArray:array];
+		}
+	}
+	else {
+		if (![array containsObject:obj]) {
+			[array addObject:obj];
+		}
+	}
+}
+- (NSArray *)arrayOfValueForKeyPath:(NSString *)keyPath {
+	NSMutableArray *array = [NSMutableArray array];
+	id obj =  [self valueForKeyPath:keyPath];
+	[self arrayOfValueForKeyPath:obj inArray:array];
+	return array;
+}
+@end
