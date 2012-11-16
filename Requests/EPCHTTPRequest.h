@@ -34,7 +34,12 @@
 - (EPCHTTPRequest*)initWithURL:(NSURL *)url delegate:(id<EPCHTTPRequestDelegate>)delegate;
 
 /*
- Autoreleased request.
+ Autoreleased request for NSURLRequest.
+ */
++ (EPCHTTPRequest*)requestWithRequest:(NSURLRequest *)urlRequest delegate:(id<EPCHTTPRequestDelegate>)delegate;
+
+/*
+ Autoreleased request for NSURL.
  */
 + (EPCHTTPRequest*)requestWithURL:(NSURL*)url delegate:(id<EPCHTTPRequestDelegate>)delegate;
 
@@ -87,6 +92,11 @@
  The request URL.
  */
 @property (retain) NSURL *url;
+
+/*
+ The NSURLRequest.
+ */
+@property (retain) NSURLRequest *urlRequest;
 
 /*
  The default is NSUTF8StringEncoding.
