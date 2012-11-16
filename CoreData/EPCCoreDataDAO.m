@@ -8,6 +8,8 @@
 #import "EPCCategories.h"
 #import <CoreData/CoreData.h>
 #import "EPCCoreDataCategories.h"
+#import "Updater.h"
+#import "LoginViewController.h"
 
 #define DB_FOLDER @"Databases"
 
@@ -21,8 +23,17 @@
 @implementation EPCCoreDataDAO
 
 - (BOOL)databaseExists {
-	NSString *path = [[UIApplication documentsDirectoryPath] stringByAppendingFormat:@"%@/%@", DB_FOLDER, [self databaseFileName]];
-	return [[NSFileManager defaultManager] fileExistsAtPath:path];
+	NSString *path = [[[UIApplication documentsDirectoryPath] stringByAppendingPathComponent:DB_FOLDER] stringByAppendingPathComponent:[self databaseFileName]];
+	BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
+	
+	if (!exists) {
+		[[NSUserDefaults standardUserDefaults] setObject:@"0" forKey:kLastUpdateDateMedias];
+		[[NSUserDefaults standardUserDefaults] setObject:@"0" forKey:kLastUpdateDateProducts];
+		[[NSUserDefaults standardUserDefaults] removeObjectForKey:kLoggedUserIDKey];
+		[[NSUserDefaults standardUserDefaults] synchronize];
+	}
+	
+	return exists;
 }
 
 - (NSManagedObjectContext *)managedObjectContext
@@ -66,6 +77,14 @@
         return __persistentStoreCoordinator;
     }
     
+	NSString *dir = [[UIApplication documentsDirectoryPath] stringByAppendingPathComponent:DB_FOLDER];
+	if (![[NSFileManager defaultManager] fileExistsAtPath:dir]) {
+		NSError *error = nil;
+		if(![[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error]) {
+			DLog(@"%@", error);
+		}
+	}
+	
     NSURL *storeURL = [[self applicationDocumentsDirectoryURL] URLByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@", DB_FOLDER, [self databaseFileName]]];
     
     NSError *error = nil;
@@ -109,7 +128,70 @@
 	return [[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject] copy];
 }
 
+#pragma - Commiting
+
+- (BOOL)save:(NSError **)error {
+	if (!error) {
+		NSError *errrror = nil;
+		if(![[self managedObjectContext] save:&errrror]) {
+			DLog(@"%@", errrror);
+			return NO;
+		}
+	}
+	return [[self managedObjectContext] save:error];
+}
+
+- (void)rollback {
+	[[self managedObjectContext] rollback];
+}
+
+#pragma mark - Inserting
+
+- (id)insertNewObjectForEntityForName:(NSString*)name {
+	return [NSEntityDescription insertNewObjectForEntityForName:name
+								  inManagedObjectContext:[self managedObjectContext]];
+}
+
+- (id)insertNewObjectForEntityForClass:(Class)aClass {
+	return [self insertNewObjectForEntityForName:NSStringFromClass(aClass)];
+}
+
+#pragma mark - Deleting
+
+- (void)deleteObject:(id)object {
+	if (object != nil) {
+		assert([object isKindOfClass:[NSManagedObject class]]);
+		[[self managedObjectContext] deleteObject:object];
+	}
+}
+
+#pragma mark - Checking
+
+- (BOOL)hasChanges {
+	return [[self managedObjectContext] hasChanges];
+}
+
 #pragma mark - Fetching
+
+- (NSArray*)fetchWithEntity:(NSString*)entity orderBy:(NSString*)order predicateString:(NSString*)predicateString {
+	NSManagedObjectContext *context =[self managedObjectContext];
+	if (context) {
+		NSArray *array = nil;
+		@try {
+			NSPredicate *predicate = nil;
+			if (predicateString) {
+				predicate = [NSPredicate predicateWithFormat:predicateString];
+			}
+			array = [context fetchObjectsForEntityName:entity orderBy:order ascending:YES withPredicate:predicate];
+		}
+		@catch (NSException *exception) {
+			array = nil;
+			DLog([exception description]);
+		}
+		return array;
+	}
+	return nil;
+}
 
 - (NSArray*)fetchWithEntity:(NSString*)entity orderBy:(NSString*)order predicate:(NSPredicate*)predicate {
 	NSManagedObjectContext *context =[self managedObjectContext];
@@ -126,6 +208,7 @@
 	}
 	return nil;
 }
+
 
 #pragma mark - Override
 
