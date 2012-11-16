@@ -1,5 +1,5 @@
 //
-//  EPCGallery
+//  EPCGalleryTweaked.m
 //
 //  Created by Everton Cunha on 23/07/12.
 //
@@ -231,6 +231,12 @@
 	if (numberOfPages > 0)
 		[self loadContentsForPage:self.currentPage];
 	pvtScrollView.userInteractionEnabled = YES;
+}
+
+- (void)reset {
+	[self unload];
+	[pvtScrollView setContentOffset:CGPointZero animated:NO];
+	[self reload];
 }
 
 #pragma mark - Unloading Views
