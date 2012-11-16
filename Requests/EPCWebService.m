@@ -37,6 +37,10 @@
 	}
 }
 
+- (BOOL)isRequesting {
+	return ([operationQueue operationCount] > 0);
+}
+
 -(void)requestDataWithURL:(NSURL*)url {
 	if (url) {
 		if (!operationQueue)
@@ -49,6 +53,22 @@
 #ifdef DEBUG
 	else {
 		NSLog(@"%s Warning: Given URL is nil.", __PRETTY_FUNCTION__);
+	}
+#endif
+}
+
+- (void)requestDataWithRequest:(NSURLRequest *)urlRequest {
+	if (urlRequest) {
+		if (!operationQueue)
+			operationQueue = [[NSOperationQueue alloc] init];
+		
+		EPCHTTPRequest *request = [EPCHTTPRequest requestWithRequest:urlRequest delegate:self];
+		request.responseStringEncoding = [self responseStringEncoding];
+		[operationQueue addOperation:request];
+	}
+#ifdef DEBUG
+	else {
+		NSLog(@"%s Warning: Given NSURLRequest is nil.", __PRETTY_FUNCTION__);
 	}
 #endif
 }
@@ -105,8 +125,13 @@
 #pragma mark - Response
 
 -(void)epcHTTPRequestStarted:(EPCHTTPRequest *)request {
-	if ([self.delegate respondsToSelector:@selector(epcWebService:requestStartedWithURL:)])
-		[self.delegate epcWebService:self requestStartedWithURL:request.url];
+	if ([self.delegate respondsToSelector:@selector(epcWebService:requestStartedWithURL:)]) {
+		NSURL *url = request.url;
+		if (!url) {
+			url = request.urlRequest.URL;
+		}
+		[self.delegate epcWebService:self requestStartedWithURL:url];
+	}
 }
 
 -(void)epcHTTPRequestFailed:(EPCHTTPRequest *)request {
@@ -190,7 +215,12 @@
 		NSError *error = [dict objectForKey:@"err"];
 		BOOL isCache = [[dict objectForKey:@"cac"] boolValue];
 		
-		[self.delegate epcWebService:self returnedData:data pagination:pagination isCache:isCache url:request.url parseError:error];
+		NSURL *url = request.url;
+		if (!url) {
+			url = request.urlRequest.URL;
+		}
+		
+		[self.delegate epcWebService:self returnedData:data pagination:pagination isCache:isCache url:url parseError:error];
 	}
 	else {
 		NSAssert(_delegate==nil, @"You forgot to implement the delegate for %@", NSStringFromClass([self class]));
@@ -202,7 +232,12 @@
 		NSError *error = [dict objectForKey:@"err"];
 		EPCHTTPRequest *request = [dict objectForKey:@"req"];
 		
-		[self.delegate epcWebService:self encounteredError:error parsingURL:request.url];
+		NSURL *url = request.url;
+		if (!url) {
+			url = request.urlRequest.URL;
+		}
+		
+		[self.delegate epcWebService:self encounteredError:error parsingURL:url];
 	}
 	else {
 		NSAssert(_delegate==nil, @"You forgot to implement the delegate for %@", NSStringFromClass([self class]));
@@ -212,7 +247,7 @@
 #pragma mark - Cache
 
 + (BOOL)deleteAllCaches {
-	NSString *path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"EPCWSCache"];
+	NSString *path = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"EPCWSCache"];
 	NSError *error = nil;
 	NSFileManager *fm = [NSFileManager defaultManager];
 	if ([fm fileExistsAtPath:path])
@@ -300,7 +335,7 @@
 
 - (NSString*)cachePath {
 	if (!cachePath) {
-		cachePath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"EPCWSCache/%@", NSStringFromClass([self class])]];
+		cachePath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"EPCWSCache/%@", NSStringFromClass([self class])]];
 		NSFileManager *fm = [NSFileManager defaultManager];
 		if (![fm fileExistsAtPath:cachePath]) {
 			NSError *error = nil;

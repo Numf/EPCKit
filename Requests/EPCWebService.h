@@ -100,6 +100,11 @@
 - (void)requestData;
 
 /*
+ Request for POSTS etc.
+ */
+- (void)requestDataWithRequest:(NSURLRequest*)urlRequest;
+
+/*
  Request with a given URL. Useful for paginations.
  */
 - (void)requestDataWithURL:(NSURL*)url;
@@ -118,6 +123,11 @@
  The delegate.
  */
 @property (assign) id<EPCWebServiceDelegate> delegate;
+
+/*
+ If it's requesting.
+ */
+@property (readonly) BOOL isRequesting;
 @end
 
 @interface EPCPagination : NSObject
