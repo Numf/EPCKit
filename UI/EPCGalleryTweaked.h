@@ -1,5 +1,5 @@
 //
-//  EPCGallery.h
+//  EPCGalleryTweaked.h
 //
 //  Created by Everton Postay Cunha on 23/07/12.
 //
@@ -32,6 +32,11 @@
  Remove all views and loads the current and loadLimit.
  */
 - (void)reload;
+
+/*
+ Reload content and scrolls to page 0.
+ */
+- (void)reset;
 
 /*
  Scrolls to a page. LoadingNear loads more views according to loadLimit.
