@@ -64,6 +64,11 @@
 - (void)setImageByURL:(NSURL*)url;
 
 /*
+ When you don't want to load a image by an URL, but you want everything else. Use this only if all images are local.
+ */
+- (void)loadImageWithoutURL;
+
+/*
  The delegate.
  */
 @property (nonatomic, assign) IBOutlet id<EPCImageViewDelegate> delegate;
@@ -87,6 +92,11 @@
  Set YES to prevent UIActivityIndicatorView allocation.
  */
 @property (nonatomic, readwrite) BOOL hideActivityIndicator;
+
+/*
+ Caches images. Default is NO, caching images.
+ */
+@property (readwrite) BOOL dontCachesImages;
 @end
 
 

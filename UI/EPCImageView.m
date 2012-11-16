@@ -17,9 +17,8 @@
 
 @implementation EPCImageView
 @synthesize imageCache,delegate;
-
 -(NSCache *)imageCache {
-	if (!imageCache) {
+	if (!imageCache && !_dontCachesImages) {
 		imageCacheIsDefault = YES;
 		self.imageCache = [[self class] imageCache];
 	}
@@ -55,6 +54,11 @@
 		return YES;
 	}
 	return NO;
+}
+
+- (void)loadImageWithoutURL {
+	[self setImageByURL:[NSURL URLWithString:@"http://www.google.com"]];
+	self.dontCachesImages = YES;
 }
 
 -(void)setImageByURL:(NSURL *)url {
