@@ -20,7 +20,7 @@
 }
 
 + (UIImage*)imageForKey:(NSString*)key fromFolderName:(NSString*)folderName {
-	NSString *filePath = [[UIApplication documentsDirectoryPath] stringByAppendingPathComponent:[folderName stringByAppendingPathComponent:key]];
+	NSString *filePath = [[UIApplication cacheDirectoryPath] stringByAppendingPathComponent:[folderName stringByAppendingPathComponent:key]];
 	NSFileManager *fm = [NSFileManager defaultManager];
 	if ([fm fileExistsAtPath:filePath]) {
 		return [UIImage imageWithContentsOfFile:filePath];
@@ -32,7 +32,7 @@
 {
 	NSError *error = nil;
 	
-	NSString *docPath = [[UIApplication documentsDirectoryPath] stringByAppendingPathComponent:folderName];
+	NSString *docPath = [[UIApplication cacheDirectoryPath] stringByAppendingPathComponent:folderName];
 	
 	// delete directory
 	if ([[NSFileManager defaultManager] fileExistsAtPath:docPath]) {
@@ -48,7 +48,7 @@
 		NSData *data = [dict objectForKey:@"imageData"];
 		NSString *key = [dict objectForKey:@"key"];
 		NSString *folderName = [dict objectForKey:@"folderName"];
-		NSString *folderPath = [UIApplication documentsDirectoryPath];
+		NSString *folderPath = [UIApplication cacheDirectoryPath];
 		if (folderName)
 			folderPath = [folderPath stringByAppendingPathComponent:folderName];
 		
