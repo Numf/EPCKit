@@ -19,6 +19,14 @@
     [super dealloc];
 }
 
+- (void)popAnimated {
+	[self popViewControllerAnimated:YES];
+}
+
+- (void)popToRootAnimated {
+	[self popToRootViewControllerAnimated:YES];
+}
+
 - (void)removeAllViewControllersAnimated:(BOOL)animated {
 	
 	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
@@ -96,6 +104,11 @@
 }
 
 -(void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
+	
+	if (IOS_VERSION_LESS_THAN(@"5")) {
+		[self.visibleViewController viewDidAppear:(flag && anim.duration > 0)];
+	}
+	
 	UIView *currentView = self.visibleViewController.view;
 	for (UIView *sub in self.subviews) {
 		if (sub != currentView) {

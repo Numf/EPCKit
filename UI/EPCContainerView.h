@@ -33,6 +33,10 @@
 
 - (void)removeAllViewControllersAnimated:(BOOL)animated;
 
+- (IBAction)popAnimated;
+
+- (IBAction)popToRootAnimated;
+
 @property (nonatomic, readonly) UIViewController *visibleViewController;
 @property (nonatomic, readonly) NSArray *pushedViewControllers;
 @property (nonatomic, assign) IBOutlet id<EPCContainerViewDelegate>delegate;
