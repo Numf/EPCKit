@@ -13,9 +13,14 @@
 - (NSString*)databaseModelName {
 	return @"mydbmodel";
 }
+ 
+- (void)handleModelIsIncompatibleWithStore { 
+}
  */
 
 #import <Foundation/Foundation.h>
+
+@class NSManagedObject;
 
 @interface EPCCoreDataDAO : NSObject
 
@@ -37,7 +42,7 @@
 /*
  Delete an NSManagedObject.
  */
-- (void)deleteObject:(id)object;
+- (void)deleteObject:(NSManagedObject*)object;
 
 /*
  Fetching.
@@ -63,6 +68,16 @@
  Inserting new object for entity class.
  */
 - (id)insertNewObjectForEntityForClass:(Class)aClass;
+
+/*
+ The context.
+ */
+- (NSManagedObjectContext *)managedObjectContext;
+
+/*
+ The store.
+ */
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator;
 
 /*
  Commits.

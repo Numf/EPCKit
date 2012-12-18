@@ -9,7 +9,6 @@
 #import <CoreData/CoreData.h>
 #import "EPCCoreDataCategories.h"
 #import "Updater.h"
-#import "LoginViewController.h"
 
 #define DB_FOLDER @"Databases"
 
@@ -25,14 +24,6 @@
 - (BOOL)databaseExists {
 	NSString *path = [[[UIApplication documentsDirectoryPath] stringByAppendingPathComponent:DB_FOLDER] stringByAppendingPathComponent:[self databaseFileName]];
 	BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path];
-	
-	if (!exists) {
-		[[NSUserDefaults standardUserDefaults] setObject:@"0" forKey:kLastUpdateDateMedias];
-		[[NSUserDefaults standardUserDefaults] setObject:@"0" forKey:kLastUpdateDateProducts];
-		[[NSUserDefaults standardUserDefaults] removeObjectForKey:kLoggedUserIDKey];
-		[[NSUserDefaults standardUserDefaults] synchronize];
-	}
-	
 	return exists;
 }
 
@@ -81,7 +72,7 @@
 	if (![[NSFileManager defaultManager] fileExistsAtPath:dir]) {
 		NSError *error = nil;
 		if(![[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error]) {
-			DLog(@"%@", error);
+			DLog(@"%s %@", __PRETTY_FUNCTION__, error);
 		}
 	}
 	
@@ -114,8 +105,9 @@
          
          */
 #ifdef DEBUG
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+        NSLog(@"%s Unresolved error %@, %@", __PRETTY_FUNCTION__, error, [error userInfo]);
 #endif
+		[self handleModelIsIncompatibleWithStore];
         return nil;
     }
     
@@ -131,14 +123,21 @@
 #pragma - Commiting
 
 - (BOOL)save:(NSError **)error {
-	if (!error) {
-		NSError *errrror = nil;
-		if(![[self managedObjectContext] save:&errrror]) {
-			DLog(@"%@", errrror);
-			return NO;
+	BOOL saved = NO;
+	@try {
+		if (!error) {
+			NSError *errrror = nil;
+			saved = [[self managedObjectContext] save:&errrror];
+			if (errrror){
+				DLog(@"%s %@", __PRETTY_FUNCTION__, errrror);
+			}
 		}
+		saved =  [[self managedObjectContext] save:error];
 	}
-	return [[self managedObjectContext] save:error];
+	@catch (NSException *exception) {
+		DLog(@"%@", exception);
+	}
+	return saved;
 }
 
 - (void)rollback {
@@ -158,7 +157,7 @@
 
 #pragma mark - Deleting
 
-- (void)deleteObject:(id)object {
+- (void)deleteObject:(NSManagedObject*)object {
 	if (object != nil) {
 		assert([object isKindOfClass:[NSManagedObject class]]);
 		[[self managedObjectContext] deleteObject:object];
@@ -186,7 +185,7 @@
 		}
 		@catch (NSException *exception) {
 			array = nil;
-			DLog([exception description]);
+			DLog(@"%s %@", __PRETTY_FUNCTION__, exception);
 		}
 		return array;
 	}
@@ -202,7 +201,7 @@
 		}
 		@catch (NSException *exception) {
 			array = nil;
-			DLog([exception description]);
+			DLog(@"%s %@", __PRETTY_FUNCTION__, exception);
 		}
 		return array;
 	}
@@ -220,6 +219,11 @@
 - (NSString*)databaseModelName {
 	assert(NO);
 	return nil;
+}
+
+- (void)handleModelIsIncompatibleWithStore {
+	DLog(@"%s", __PRETTY_FUNCTION__);
+	assert(NO);
 }
 
 @end
