@@ -60,7 +60,7 @@
 - (UIView*)viewForPage:(int)page shouldAskDelegate:(BOOL)ask;
 
 /*
- Automatically unload far pages. Default is NO.
+ Automatically unload far pages. Default is YES.
  */
 @property (nonatomic, readwrite) BOOL autoUnload;
 

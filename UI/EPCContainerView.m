@@ -67,6 +67,13 @@
     [pushedViewControllers removeAllObjects];
 	[pushedViewControllers addObject:newViewController];
     
+	if (IOS_VERSION_LESS_THAN(@"5")) {
+		id create = newViewController.view;
+		create = nil;
+		[newViewController viewWillAppear:animated];
+		[fromViewController viewWillDisappear:animated];
+	}
+	
 	if (self.autoresizesSubviews)
 		newViewController.view.frame = self.bounds;
 	
@@ -77,6 +84,10 @@
 			[sub removeFromSuperview];
 		[newViewController.view setFrameX:0];
 		[self addSubview:newViewController.view];
+		
+		if (IOS_VERSION_LESS_THAN(@"5")) {
+			[newViewController viewDidAppear:NO];
+		}
 	}
 	else {
         
@@ -106,7 +117,7 @@
 -(void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
 	
 	if (IOS_VERSION_LESS_THAN(@"5")) {
-		[self.visibleViewController viewDidAppear:(flag && anim.duration > 0)];
+		[self.visibleViewController viewDidAppear:YES];
 	}
 	
 	UIView *currentView = self.visibleViewController.view;
@@ -128,6 +139,13 @@
     
 	[pushedViewControllers addObject:newViewController];
     
+	if (IOS_VERSION_LESS_THAN(@"5")) {
+		id create = newViewController.view;
+		create = nil;
+		[newViewController viewWillAppear:animated];
+		[fromViewController viewWillDisappear:animated];
+	}
+	
 	if (self.autoresizesSubviews)
 		newViewController.view.frame = self.bounds;
 	
@@ -135,6 +153,10 @@
 		for (UIView *sub in self.subviews)
 			[sub removeFromSuperview];
 		[self addSubview:newViewController.view];
+		
+		if (IOS_VERSION_LESS_THAN(@"5")) {
+			[newViewController viewDidAppear:NO];
+		}
 	}
 	else {
 		[newViewController.view setFrameX:self.frame.size.width];
@@ -167,12 +189,23 @@
 	if (![pushedViewControllers containsObject:toViewController])
 		[NSException raise:@"Exception!" format:@"Trying to pop a view that wasn't push in the container."];
 	
+	if (IOS_VERSION_LESS_THAN(@"5")) {
+		id create = toViewController.view;
+		create = nil;
+		[toViewController viewWillAppear:animated];
+		[fromViewController viewWillDisappear:animated];
+	}
+	
 	if (!animated) 
     {
 		for (UIView *sub in self.subviews)
 			[sub removeFromSuperview];
 		
 		[self addSubview:toViewController.view];
+		
+		if (IOS_VERSION_LESS_THAN(@"5")) {
+			[toViewController viewDidAppear:NO];
+		}
 	}
 	else 
     {
@@ -213,6 +246,13 @@
 	[pushedViewControllers removeLastObject];
 	UIViewController *toViewController = [pushedViewControllers lastObject];
 	
+	if (IOS_VERSION_LESS_THAN(@"5")) {
+		id create = toViewController.view;
+		create = nil;
+		[toViewController viewWillAppear:animated];
+		[fromViewController viewWillDisappear:animated];
+	}
+	
 	if (!animated) 
     {        
         
@@ -220,6 +260,10 @@
 			[sub removeFromSuperview];
         
 		[self addSubview:toViewController.view];
+		
+		if (IOS_VERSION_LESS_THAN(@"5")) {
+			[toViewController viewDidAppear:NO];
+		}
 	}
 	else 
     {
@@ -258,6 +302,12 @@
 	
 	UIViewController *toViewController = [pushedViewControllers lastObject];
 	
+	if (IOS_VERSION_LESS_THAN(@"5")) {
+		id create = toViewController.view;
+		create = nil;
+		[toViewController viewWillAppear:animated];
+		[fromViewController viewWillDisappear:animated];
+	}
 	
 	if (!animated) {
 
@@ -265,6 +315,10 @@
 			[sub removeFromSuperview];
         
 		[self addSubview:toViewController.view];
+		
+		if (IOS_VERSION_LESS_THAN(@"5")) {
+			[toViewController viewDidAppear:NO];
+		}
 	}
 	else 
     {
