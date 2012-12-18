@@ -8,4 +8,6 @@
 
 @interface EPCStrechableUIButton : UIButton
 
++ (void)applyStretchOnButton:(UIButton*)button;
+
 @end
