@@ -12,4 +12,5 @@
 
 @interface EPCVersionChecker : NSObject
 
++ (BOOL)appChangedVersion;
 @end
