@@ -17,3 +17,9 @@
 @interface NSManagedObject (EPCCoreDataCategories)
 - (NSArray *)arrayOfValueForKeyPath:(NSString*)key;
 @end
+
+
+@interface NSManagedObject (Clone)
+// from http://stackoverflow.com/a/7613406/539194
+- (NSManagedObject *)cloneInContext:(NSManagedObjectContext *)context exludeEntities:(NSArray *)namesOfEntitiesToExclude;
+@end
