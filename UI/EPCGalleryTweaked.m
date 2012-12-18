@@ -65,10 +65,14 @@
 	if (maximumZoomScale == 0)
 		maximumZoomScale = 1;
 	
+	self.autoUnload = YES;
+	
+	self.doubleTapToZoom = doubleTapToZoom;
+	
 	pvtScrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
 	pvtScrollView.pagingEnabled = YES;
 	pvtScrollView.delegate = self;
-	pvtScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+	pvtScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleBottomMargin|UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin| UIViewAutoresizingFlexibleTopMargin;
 	pvtScrollView.showsHorizontalScrollIndicator = pvtScrollView.showsVerticalScrollIndicator = NO;
 	numberOfPages = [self.delegate epcGalleryNumberOfPages:self];
 	[pvtScrollView setContentSize:CGSizeMake(numberOfPages*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
@@ -78,8 +82,6 @@
 	
 	if (numberOfPages > 0)
 		[self loadContentsForPage:0];
-	
-	self.doubleTapToZoom = doubleTapToZoom;
 }
 
 #pragma mark - Loading Views
