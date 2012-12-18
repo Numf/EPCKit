@@ -9,6 +9,7 @@
 @interface UIApplication (EPCCategories)
 + (NSString *)documentsDirectoryPath;
 + (NSString *)cacheDirectoryPath;
++ (NSString *)tmpDirectoryPath;
 @end
 
 @interface UIImage (EPCCategories)
@@ -80,4 +81,8 @@
 #if TARGET_OS_IPHONE
 - (BOOL)excludePathFromBackup;
 #endif
+@end
+
+@interface NSMutableString (EPCCategories)
+- (NSMutableString*)initWithUnknowEncondingAndData:(NSData*)data;
 @end

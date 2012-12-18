@@ -27,7 +27,13 @@
 	return [UIImage imageWithContentsOfFile:[[NSBundle mainBundle] pathForResource:[name stringByDeletingPathExtension] ofType:[name pathExtension]]];
 }
 +(UIImage *)imageWithContentsOfFileInDocumentsDirectoryNamed:(NSString *)name {
-	return [UIImage imageWithContentsOfFile:[[UIApplication documentsDirectoryPath] stringByAppendingPathComponent:name]];
+	if (name) {
+		NSString *path = [[UIApplication documentsDirectoryPath] stringByAppendingPathComponent:name];
+		if([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+			return [UIImage imageWithContentsOfFile:path];
+		}
+	}
+	return nil;
 }
 +(UIImage *)imageWithContentsOfFileInCacheDirectoryNamed:(NSString *)name {
 	return [UIImage imageWithContentsOfFile:[[UIApplication cacheDirectoryPath] stringByAppendingPathComponent:name]];
@@ -48,6 +54,18 @@
 		cachedir = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0] copy];
 	}
 	return cachedir;
+}
++ (NSString *)tmpDirectoryPath {
+	static id tempDir = nil;
+	if (!tempDir) {
+		tempDir = [NSTemporaryDirectory() copy];
+		NSFileManager *fm = [NSFileManager defaultManager];
+		if (![fm fileExistsAtPath:tempDir]) {
+			BOOL ok = [fm createDirectoryAtPath:tempDir withIntermediateDirectories:NO attributes:nil error:nil];
+			assert(ok);
+		}
+	}
+	return tempDir;
 }
 @end
 
@@ -208,6 +226,8 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 	}
 	if ([strings count] > 0)
 		return strings;
+	if ([self length] > 0)
+		return [NSArray arrayWithObject:self];
 	return nil;
 }
 - (NSString *) md5
@@ -370,4 +390,45 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 - (NSString*)year {
 	return [[self description] substringWithRange:NSMakeRange(0, 4)];
 }
+@end
+
+@implementation NSMutableString (EPCCategories)
+
+- (NSMutableString*)initWithUnknowEncondingAndData:(NSData*)data {
+	int e [23];
+	e[0] = NSASCIIStringEncoding;
+	e[1] = NSUTF8StringEncoding;
+	e[2] = NSISOLatin1StringEncoding;
+	e[3] = NSISOLatin2StringEncoding;
+	e[4] = NSUnicodeStringEncoding;
+	e[5] = NSSymbolStringEncoding;
+	e[6] = NSNonLossyASCIIStringEncoding;
+	e[7] = NSShiftJISStringEncoding;
+	e[8] = NSUTF32StringEncoding;
+	e[9] = NSUTF16StringEncoding;
+	e[10] = NSWindowsCP1251StringEncoding;
+	e[11] = NSWindowsCP1252StringEncoding;
+	e[12] = NSWindowsCP1253StringEncoding;
+	e[13] = NSWindowsCP1254StringEncoding;
+	e[14] = NSWindowsCP1250StringEncoding;
+	e[15] = NSISO2022JPStringEncoding;
+	e[16] = NSMacOSRomanStringEncoding;
+	e[17] = NSUTF16BigEndianStringEncoding;
+	e[18] = NSUTF32LittleEndianStringEncoding;
+	e[19] = NSJapaneseEUCStringEncoding;
+	e[20] = NSUTF16LittleEndianStringEncoding;
+	e[21] = NSUTF32BigEndianStringEncoding;
+	e[22] = NSNEXTSTEPStringEncoding;
+	
+	NSMutableString *dataString = nil;
+	for (int i = 0; i < 23; i++) {
+		NSStringEncoding encode = e[i];
+		dataString = [self initWithData:data encoding:encode];
+		if (dataString) {
+			return dataString;
+		}
+	}
+	return nil;
+}
+
 @end
