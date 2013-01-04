@@ -59,6 +59,10 @@
 		[navController release];
 	}
 	
+	if ([self.delegate respondsToSelector:@selector(epcPopOverButton:willPresentPickerView:)]) {
+		[self.delegate epcPopOverButton:self willPresentPickerView:filterPickerView];
+	}
+	
     [_filterPopOver presentPopoverFromRect:self.bounds inView:self permittedArrowDirections:self.permittedArrowDirections animated:YES];
 	
 	if ([self.delegate respondsToSelector:@selector(epcPopOverButton:didPresentPickerView:popOverController:)]) {
@@ -67,7 +71,34 @@
 }
 
 -(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+
 	if ([self.delegate respondsToSelector:@selector(epcPopOverButton:pickerView:didSelectRow:inComponent:)]) {
+		if ([self.delegate respondsToSelector:@selector(epcPopOverButton:rowIsDisabled:)]) {
+			if ([self.delegate epcPopOverButton:self rowIsDisabled:row]) {
+				int numbersOfRows = [self.delegate epcPopOverButton:self pickerView:pickerView numberOfRowsInComponent:component];
+				int nextValidRow = -1;
+				// find next valid row
+				for (int i = row+1; i < numbersOfRows; i++) {
+					if (![self.delegate epcPopOverButton:self rowIsDisabled:i]) {
+						nextValidRow = i;
+						break;
+					}
+				}
+				if (nextValidRow == -1) {
+					// find previous valid row
+					for (int i = row-1; i >= 0; i--) {
+						if (![self.delegate epcPopOverButton:self rowIsDisabled:i]) {
+							nextValidRow = i;
+							break;
+						}
+					}
+				}
+				if (nextValidRow >= 0 && nextValidRow < numbersOfRows) {
+					row = nextValidRow;
+					[pickerView selectRow:nextValidRow inComponent:component animated:YES];
+				}
+			}
+		}
 		[self.delegate epcPopOverButton:self pickerView:pickerView didSelectRow:row inComponent:component];
 	}
 }
@@ -115,6 +146,16 @@
 		label.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:24.f];
 		label.textAlignment = UITextAlignmentLeft;
 		label.backgroundColor = [UIColor clearColor];
+	}
+	
+	if ([self.delegate respondsToSelector:@selector(epcPopOverButton:rowIsDisabled:)]) {
+		BOOL disabled = [self.delegate epcPopOverButton:self rowIsDisabled:row];
+		if (disabled) {
+			label.textColor = [UIColor grayColor];
+		}
+		else {
+			label.textColor = [UIColor blackColor];
+		}
 	}
 	
 	// in this case it's not optional

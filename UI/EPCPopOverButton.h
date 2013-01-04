@@ -16,6 +16,11 @@
 -(NSInteger)epcPopOverButton:(EPCPopOverButton*)epcPopOverButton numberOfComponentsInPickerView:(UIPickerView *)pickerView;
 
 @optional
+
+-(void)epcPopOverButton:(EPCPopOverButton *)epcpopOverButton willPresentPickerView:(UIPickerView*)pickerView;
+
+-(BOOL)epcPopOverButton:(EPCPopOverButton *)epcPopOverButton rowIsDisabled:(NSInteger)row;
+
 -(void)epcPopOverButton:(EPCPopOverButton*)epcPopOverButton popoverControllerDidDismissPopover:(UIPopoverController *)popoverController;
 
 -(NSString*)epcPopOverButton:(EPCPopOverButton*)epcPopOverButton titleForRow:(NSInteger)row forComponent:(NSInteger)component;
