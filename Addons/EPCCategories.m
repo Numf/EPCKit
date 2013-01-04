@@ -61,8 +61,7 @@
 		tempDir = [NSTemporaryDirectory() copy];
 		NSFileManager *fm = [NSFileManager defaultManager];
 		if (![fm fileExistsAtPath:tempDir]) {
-			BOOL ok = [fm createDirectoryAtPath:tempDir withIntermediateDirectories:NO attributes:nil error:nil];
-			assert(ok);
+			[fm createDirectoryAtPath:tempDir withIntermediateDirectories:NO attributes:nil error:nil];
 		}
 	}
 	return tempDir;
