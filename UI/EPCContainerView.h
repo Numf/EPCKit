@@ -50,4 +50,5 @@
 
 @interface UIViewController (container)
 - (EPCContainerView *)epcContainerView;
+- (IBAction)popEPCContainerViewAnimated:(id)sender;
 @end

@@ -20,6 +20,9 @@
 			[self viewDidUnload];
 	}
 }
+- (void)popViewControllerAnimated {
+	[self.navigationController popViewControllerAnimated:YES];
+}
 @end
 
 @implementation UIImage (EPCCategories)
@@ -210,6 +213,12 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 - (NSArray*)arrayByExplodingWithString:(NSString*)string {
 	NSMutableArray *strings = [NSMutableArray array];
 	NSRange range = [self rangeOfString:string];
+	if (range.location != NSNotFound) { // first
+		NSString *subf = [self substringWithRange:NSMakeRange(0, range.location)];
+		if ([subf length] > 0) {
+			[strings addObject:subf];
+		}
+	}
 	while (range.location != NSNotFound && range.location > 0) {
 		NSRange nextRange = [self rangeOfString:string options:NSLiteralSearch range:NSMakeRange(range.location+range.length, [self length] - (range.location+range.length))];
 		NSString *subs = nil;
@@ -219,7 +228,7 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 		else {
 			subs = [self substringWithRange:NSMakeRange(range.location+range.length, nextRange.location-(range.location+range.length))];
 		}
-		if (subs)
+		if ([subs length] > 0)
 			[strings addObject:subs];
 		range = nextRange;
 	}

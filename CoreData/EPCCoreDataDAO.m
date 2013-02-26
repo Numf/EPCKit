@@ -8,7 +8,6 @@
 #import "EPCCategories.h"
 #import <CoreData/CoreData.h>
 #import "EPCCoreDataCategories.h"
-#import "Updater.h"
 
 #define DB_FOLDER @"Databases"
 

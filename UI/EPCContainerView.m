@@ -7,6 +7,7 @@
 #import "EPCContainerView.h"
 #import <QuartzCore/QuartzCore.h>
 #import "EPCCategories.h"
+#import "EPCDefines.h"
 
 @implementation EPCContainerView
 @synthesize delegate, pushedViewControllers;
@@ -67,12 +68,12 @@
     [pushedViewControllers removeAllObjects];
 	[pushedViewControllers addObject:newViewController];
     
-	if (IOS_VERSION_LESS_THAN(@"5")) {
+//	if (IOS_VERSION_LESS_THAN(@"5")) {
 		id create = newViewController.view;
 		create = nil;
 		[newViewController viewWillAppear:animated];
 		[fromViewController viewWillDisappear:animated];
-	}
+//	}
 	
 	if (self.autoresizesSubviews)
 		newViewController.view.frame = self.bounds;
@@ -139,12 +140,12 @@
     
 	[pushedViewControllers addObject:newViewController];
     
-	if (IOS_VERSION_LESS_THAN(@"5")) {
+//	if (IOS_VERSION_LESS_THAN(@"5")) {
 		id create = newViewController.view;
 		create = nil;
 		[newViewController viewWillAppear:animated];
 		[fromViewController viewWillDisappear:animated];
-	}
+//	}
 	
 	if (self.autoresizesSubviews)
 		newViewController.view.frame = self.bounds;
@@ -189,12 +190,12 @@
 	if (![pushedViewControllers containsObject:toViewController])
 		[NSException raise:@"Exception!" format:@"Trying to pop a view that wasn't push in the container."];
 	
-	if (IOS_VERSION_LESS_THAN(@"5")) {
+//	if (IOS_VERSION_LESS_THAN(@"5")) {
 		id create = toViewController.view;
 		create = nil;
 		[toViewController viewWillAppear:animated];
 		[fromViewController viewWillDisappear:animated];
-	}
+//	}
 	
 	if (!animated) 
     {
@@ -246,12 +247,12 @@
 	[pushedViewControllers removeLastObject];
 	UIViewController *toViewController = [pushedViewControllers lastObject];
 	
-	if (IOS_VERSION_LESS_THAN(@"5")) {
+//	if (IOS_VERSION_LESS_THAN(@"5")) {
 		id create = toViewController.view;
 		create = nil;
 		[toViewController viewWillAppear:animated];
 		[fromViewController viewWillDisappear:animated];
-	}
+//	}
 	
 	if (!animated) 
     {        
@@ -302,12 +303,12 @@
 	
 	UIViewController *toViewController = [pushedViewControllers lastObject];
 	
-	if (IOS_VERSION_LESS_THAN(@"5")) {
+//	if (IOS_VERSION_LESS_THAN(@"5")) {
 		id create = toViewController.view;
 		create = nil;
 		[toViewController viewWillAppear:animated];
 		[fromViewController viewWillDisappear:animated];
-	}
+//	}
 	
 	if (!animated) {
 
@@ -386,6 +387,9 @@
 		NSLog(@"Warning: %@ is not in a EPCContainerView. Returning nil.", NSStringFromClass([self class]));
 #endif
 	return (id)view;
+}
+- (void)popEPCContainerViewAnimated:(id)sender {
+	[self.epcContainerView popViewControllerAnimated:YES];
 }
 @end
 
