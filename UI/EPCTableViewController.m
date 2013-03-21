@@ -1,5 +1,5 @@
 //
-//  EPCTableView.m
+//  EPCTableViewController.m
 //
 //  Created by Everton Cunha on 21/03/13.
 //

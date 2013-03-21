@@ -1,5 +1,5 @@
 //
-//  EPCTableView.h
+//  EPCTableViewController.h
 //
 //  Created by Everton Cunha on 21/03/13.
 //
@@ -43,12 +43,12 @@
 
 - (void)setRefreshActivityIndicatorViewColor:(UIColor*)color;
 
-- (void)reloadTableViewDataSource; // * REQUIRED OVERRIDE * //
+- (void)reloadTableViewDataSource; // * REQUIRED OVERRIDE
 
 /*
  Your custom view will be streched to TableView's width and height, note your Autosizing rules.
  */
-- (EPCTableViewRefreshView*)customRefreshView; // * OPTIONAL OVERRIDE * //
+- (EPCTableViewRefreshView*)customRefreshView; // * OPTIONAL OVERRIDE (You can load a nib with EGORefreshTableHeaderView)
 
 @property (assign) IBOutlet UITableView *tableView;
 
