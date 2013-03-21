@@ -7,19 +7,21 @@
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 @interface UIApplication (EPCCategories)
-+ (NSString *)documentsDirectoryPath;
-+ (NSString *)cacheDirectoryPath;
-+ (NSString *)tmpDirectoryPath;
++ (NSString*)documentsDirectoryPath;
++ (NSString*)cacheDirectoryPath;
++ (NSString*)tmpDirectoryPath;
 @end
 
 @interface UIImage (EPCCategories)
 + (UIImage*)imageWithContentsOfFileNamed:(NSString*)name; /* this prevents caching the image object */
-+ (UIImage*)imageWithContentsOfFileInDocumentsDirectoryNamed:(NSString *)name;
-+(UIImage *)imageWithContentsOfFileInCacheDirectoryNamed:(NSString *)name;
++ (UIImage*)imageWithContentsOfFileInDocumentsDirectoryNamed:(NSString*)name;
++ (UIImage*)imageWithContentsOfFileInCacheDirectoryNamed:(NSString*)name;
 @end
 
 @interface UIView (EPCCategories)
 + (id)loadFromNib;
++ (id)loadFromNibName:(NSString*)nibName;
++ (id)loadFromNibReplacingView:(UIView*)view;
 - (void)removeAllSubviews;
 - (void)removeAllSubviewsOfClass:(Class)aClass;
 @property (nonatomic) CGPoint frameOrigin;

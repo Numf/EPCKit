@@ -72,8 +72,18 @@
 @end
 
 @implementation UIView (EPCCategories)
++ (id)loadFromNibName:(NSString*)nibName {
+	return [[[NSBundle mainBundle] loadNibNamed:nibName owner:nil options:nil] lastObject];
+}
 + (id)loadFromNib {
-	return [[[NSBundle mainBundle] loadNibNamed:NSStringFromClass(self) owner:nil options:nil] lastObject];
+	return [self loadFromNibName:NSStringFromClass(self)];
+}
++ (id)loadFromNibReplacingView:(UIView *)view {
+	UIView *vv = [self loadFromNib];
+	vv.frame = view.frame;
+	[view.superview addSubview:vv];
+	[view removeFromSuperview];
+	return vv;
 }
 - (void)removeAllSubviews {
 	[self.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
