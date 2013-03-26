@@ -68,6 +68,8 @@
 		return nil;
 	}
 	
+	NSCharacterSet *numbersSet = [NSCharacterSet decimalDigitCharacterSet];
+	
     //Creates an NSArray from the CFArrayRef using toll-free bridging
     CFArrayRef arrayOfPeople = ABAddressBookCopyArrayOfAllPeople(addressBook);
 	
@@ -109,7 +111,7 @@
 		
         for (int k=0; k<phoneNumberCount; k++ )
 		{
-			NSMutableDictionary *mutDict = [NSMutableDictionary dictionaryWithCapacity:2];
+			NSMutableDictionary *mutDict = [NSMutableDictionary dictionaryWithCapacity:3];
 			[phones addObject:mutDict];
 			
             CFStringRef phoneNumberLabel = ABMultiValueCopyLabelAtIndex( phoneNumbers, k );
@@ -118,8 +120,35 @@
 		
 			if (phoneNumberLocalizedLabel != NULL)
 				[mutDict setObject:(id)phoneNumberLocalizedLabel forKey:@"label"];
-			if (phoneNumberValue != NULL)
-				[mutDict setObject:(id)phoneNumberValue forKey:@"number"];
+		
+			if (phoneNumberValue != NULL) {
+				[mutDict setObject:(id)phoneNumberValue forKey:@"numberFormatted"];
+			}
+			
+			NSMutableString *cleanNumber = nil;
+			
+			if (phoneNumberValue != NULL) {
+				cleanNumber = [[NSMutableString alloc] initWithString:(id)phoneNumberValue];
+				int i = 0;
+				while (i < [cleanNumber length]) {
+					if ([numbersSet characterIsMember:[cleanNumber characterAtIndex:i]]) {
+						i++;
+					}
+					else {
+						[cleanNumber replaceCharactersInRange:NSMakeRange(i, 1) withString:@""];
+					}
+				}
+				if ([cleanNumber length] > 0) {
+					[mutDict setObject:cleanNumber forKey:@"number"];
+				}
+				else {
+					[mutDict setObject:@"" forKey:@"number"];
+				}
+				[cleanNumber release];
+			}
+			else {
+				[mutDict setObject:@"" forKey:@"number"];
+			}
 			
             CFRelease(phoneNumberLocalizedLabel);
             CFRelease(phoneNumberLabel);
