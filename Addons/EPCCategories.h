@@ -53,8 +53,13 @@
 @end
 
 @interface NSArray (EPCCategories)
+- (NSArray*)reversedArray;
 - (NSArray*)sortedArrayWithKey:(NSString*)property ascending:(BOOL)asc;
 - (NSArray*)sortedArrayUsingArray:(NSArray*)otherArray;
+@end
+
+@interface NSMutableArray (EPCCategories)
+- (void)reverse;
 @end
 
 @interface NSSet (EPCCategories)
@@ -87,4 +92,8 @@
 
 @interface NSMutableString (EPCCategories)
 - (NSMutableString*)initWithUnknowEncondingAndData:(NSData*)data;
+@end
+
+@interface NSNumberFormatter (EPCCategories)
++ (NSString*)stringFromTime:(float)time;
 @end

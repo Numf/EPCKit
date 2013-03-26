@@ -194,6 +194,14 @@
 @end
 
 @implementation	NSArray (EPCCategories)
+- (NSArray *)reversedArray {
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity:[self count]];
+    NSEnumerator *enumerator = [self reverseObjectEnumerator];
+    for (id element in enumerator) {
+        [array addObject:element];
+    }
+    return array;
+}
 - (NSArray *)sortedArrayWithKey:(NSString *)key ascending:(BOOL)asc {
 	return [self sortedArrayUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:key ascending:asc]]];
 }
@@ -210,6 +218,20 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 }
 - (NSArray *)sortedArrayUsingArray:(NSArray *)otherArray {
     return [self sortedArrayUsingFunction:comparatorForSortingUsingArray context:otherArray];
+}
+@end
+
+@implementation NSMutableArray (EPCCategories)
+- (void)reverse {
+	if ([self count] == 0)
+        return;
+    NSUInteger i = 0;
+    NSUInteger j = [self count] - 1;
+    while (i < j) {
+        [self exchangeObjectAtIndex:i withObjectAtIndex:j];
+        i++;
+        j--;
+    }
 }
 @end
 
@@ -449,4 +471,20 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 	return nil;
 }
 
+@end
+
+@implementation NSNumberFormatter (EPCCategories)
++ (NSString *)stringFromTime:(float)time {
+	int minutes = ((int)time)/60.f;
+	int seconds = fmodf(time, 60.f);
+	int hours = 0;
+	if (minutes > 60) {
+		hours = (int)(minutes/60.f);
+		minutes = fmodf(minutes, 60.f);
+	}
+	if (hours > 0) {
+		return fstr(@"%02d:%02d:%02d", hours, minutes, seconds);
+	}
+	return fstr(@"%02d:%02d", minutes, seconds);
+}
 @end
