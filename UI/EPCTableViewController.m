@@ -35,6 +35,7 @@
 	if (NSClassFromString(@"UIRefreshControl") != NULL) {
 		self.tableViewController = [[[UITableViewController alloc] init] autorelease];
 		self.tableViewController.tableView = self.tableView;
+		assert(self.tableView);
 		self.tableViewController.refreshControl = [self createRefreshControl];
 	}
 	else {
@@ -109,14 +110,25 @@
 
 - (void)beginRefreshing {
 	_reloading = YES;
-	[self.tableViewController.refreshControl beginRefreshing];
-	[self.refreshView beginRefreshing];
+	if (self.tableViewController) {
+		[self.tableViewController.refreshControl beginRefreshing];
+		if (self.tableView.contentOffset.y >= 0) {
+			[self.tableView setContentOffset:CGPointMake(0, -44.f) animated:YES];
+		}
+	}
+	else {
+		[self.refreshView beginRefreshing];
+	}
 }
 
 -(void)endRefreshing {
 	_reloading = NO;
-	[self.tableViewController.refreshControl endRefreshing];
-	[self.refreshView endRefreshing];
+	if (self.tableViewController) {
+		[self.tableViewController.refreshControl endRefreshing];
+	}
+	else {
+		[self.refreshView endRefreshing];
+	}
 }
 
 #pragma mark -
