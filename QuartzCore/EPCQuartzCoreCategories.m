@@ -23,8 +23,19 @@
 	BOOL m22 = self.layer.transform.m22 == 1;
 	self.layer.transform = CATransform3DMakeRotation(M_PI,1.0*m22,0.0,0.0);
 }
+- (BOOL)isFlippedVertical {
+	return self.layer.transform.m22 == 1;
+}
 - (void)rotateDegrees:(float)degrees {
 	CGAffineTransform transform = CGAffineTransformMakeRotation(degreesToRadians(degrees));
 	self.transform = transform;
+}
+
+- (void)flipHorizontal {
+	BOOL m33 = self.layer.transform.m33 == 1;
+	self.layer.transform = CATransform3DMakeRotation(M_PI,0.0,1.0*m33,0.0);
+}
+- (BOOL)isFlippedHorizontal {
+	return self.layer.transform.m33 == -1;
 }
 @end

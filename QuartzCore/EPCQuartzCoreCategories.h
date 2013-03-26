@@ -9,6 +9,12 @@
 
 @interface UIView (EPCQuartzCoreCategories)
 - (UIImage*)renderToImageOfSize:(CGSize)size opaque:(BOOL)opaque;
+
 - (void)flipVertical;
+- (BOOL)isFlippedVertical;
+
+- (void)flipHorizontal;
+- (BOOL)isFlippedHorizontal;
+
 - (void)rotateDegrees:(float)degrees;
 @end
