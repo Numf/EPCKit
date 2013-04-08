@@ -21,6 +21,9 @@
 	
 	if (img != (img = [self backgroundImageForState:UIControlStateSelected]))
 		[self setBackgroundImage:img forState:UIControlStateSelected];
+	
+	if (img != (img = [self backgroundImageForState:UIControlStateDisabled]))
+		[self setBackgroundImage:img forState:UIControlStateSelected];
 }
 
 - (void)setBackgroundImage:(UIImage*)img forState:(UIControlState)state {
