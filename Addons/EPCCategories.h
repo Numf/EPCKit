@@ -60,10 +60,15 @@
 
 @interface NSMutableArray (EPCCategories)
 - (void)reverse;
+- (void)removeNullObjects;
 @end
 
 @interface NSSet (EPCCategories)
 - (NSArray*)sortedArrayWithKey:(NSString*)property ascending:(BOOL)asc;
+@end
+
+@interface NSMutableDictionary (EPCCategories)
+- (void)removeNullObjects;
 @end
 
 @interface NSDate (EPCCategories)
@@ -85,6 +90,7 @@
 - (NSArray*)arrayByExplodingWithString:(NSString*)string;
 - (NSString*)phpURLEncoded;
 - (NSString*)stringByFirstCharCapital;
+- (NSString*)stringByAllWordsFirstCharUpperCase;
 #if TARGET_OS_IPHONE
 - (BOOL)excludePathFromBackup;
 #endif

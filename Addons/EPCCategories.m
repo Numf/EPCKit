@@ -233,11 +233,49 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
         j--;
     }
 }
+- (void)removeNullObjects {
+	for (int i = 0; i < [self count]; i++) {
+		id obj = [self objectAtIndex:i];
+		if ([obj isKindOfClass:[NSNull class]]) {
+			[self removeObjectAtIndex:i];
+			i--;
+		}
+		else if ([obj isKindOfClass:[NSMutableDictionary class]]) {
+			[obj removeNullObjects];
+		}
+	}
+}
 @end
 
 @implementation	NSSet (EPCCategories)
 - (NSArray *)sortedArrayWithKey:(NSString *)key ascending:(BOOL)asc {
 	return [self sortedArrayUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:key ascending:asc]]];
+}
+@end
+
+@implementation NSMutableDictionary (EPCCategories)
+-(void)setNullToNilAtDictionariesInArray:(NSMutableArray*)array {
+	for (id item in array) {
+		if ([item isKindOfClass:[NSMutableDictionary class]]) {
+			[self setNullToNilInDictionary:item];
+			
+		} else if ([item isKindOfClass:[NSMutableArray class]]) {
+			[self setNullToNilAtDictionariesInArray:item];
+		}
+	}
+}
+-(void)setNullToNilInDictionary:(NSMutableDictionary*)d {
+	for(NSString *key in [d allKeys]) {
+		id obj = [d objectForKey:key];
+		if ([obj isKindOfClass:[NSNull class]]){
+			[d removeObjectForKey:key];
+		} else if([obj isKindOfClass:[NSMutableArray class]] || [obj isKindOfClass:[NSMutableDictionary class]]) {
+			[obj removeNullObjects];
+		}
+	}
+}
+- (void)removeNullObjects {
+	[self setNullToNilInDictionary:self];
 }
 @end
 
@@ -376,9 +414,22 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 	return self;
 }
 
+- (NSString *)stringByAllWordsFirstCharUpperCase {
+	NSArray *words = [self arrayByExplodingWithString:@" "];
+	NSMutableString *result = [[[NSMutableString alloc] initWithString:@""] autorelease];
+	for (NSString *str in words) {
+		if ([str length] > 0) {
+			[result appendString:[str stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[str substringToIndex:1] uppercaseString]]];
+		}
+		[result appendString:@" "];
+	}
+	[result deleteCharactersInRange:NSMakeRange([result length]-1, 1)];
+	return result;
+}
+
 #if TARGET_OS_IPHONE
 -(BOOL)excludePathFromBackup {
-	NSURL *url = [[NSURL alloc] initFileURLWithPath:self];
+	NSURL *url = [[[NSURL alloc] initFileURLWithPath:self] autorelease];
 	
 	if ([[[UIDevice currentDevice] systemVersion] isEqualToString:@"5.0.1"]) {
 		assert([[NSFileManager defaultManager] fileExistsAtPath: self]);
