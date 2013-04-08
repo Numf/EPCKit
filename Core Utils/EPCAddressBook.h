@@ -6,17 +6,24 @@
 
 #import <Foundation/Foundation.h>
 
-@interface EPCAddressBook : NSObject
+#define kNotificationAddressBookChanged @"kNotificationAddressBookChanged" // This can be fired multiple times while the AdddressBook is syncing
+
+@interface EPCAddressBook : NSObject {
+	id _addressBook;
+}
 
 + (NSArray*)allContacts;
 
 + (BOOL)requestAddressBookAccess;
 
 + (BOOL)hasAccessToAddressBook;
+
 @end
 
 @interface EPCAddressBookPerson : NSObject
 @property (copy) NSString *name, *lastName, *middleName, *companyName;
-@property (strong) NSArray *phones;
+@property (strong) NSArray *phones, *emails;
 @property (readonly) NSString *contactName; // first and last, middle or company
+@property (strong) id recordRef;
+- (UIImage*)image;
 @end
