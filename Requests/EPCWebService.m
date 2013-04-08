@@ -9,8 +9,8 @@
 #import "EPCHTTPRequest.h"
 
 @interface EPCWebService () {
-	NSOperationQueue *operationQueue;
-	NSString *cachePath;
+	NSOperationQueue *_operationQueue;
+	NSString *_cachePath;
 }
 @end
 
@@ -19,9 +19,24 @@
 - (void)dealloc
 {
 	[self clearDelegateAndCancel];
-    [operationQueue release];
-	[cachePath release];
+	[_operationQueue removeObserver:self forKeyPath:@"operationCount"];
+    [_operationQueue release];
+	[_cachePath release];
     [super dealloc];
+}
+
+- (NSOperationQueue*)operationQueue {
+	if (!_operationQueue) {
+		_operationQueue = [[NSOperationQueue alloc] init];
+		[_operationQueue addObserver:self forKeyPath:@"operationCount" options:NSKeyValueObservingOptionNew context:nil];
+	}
+	return _operationQueue;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+	if (self.handleNetworkActivityIndicator) {
+		[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:[_operationQueue operationCount]>0];
+	}
 }
 
 -(void)clearDelegateAndCancel {
@@ -31,20 +46,20 @@
 
 -(void)cancelAllRequests {
 	@synchronized(self) {
-		[operationQueue cancelAllOperations];
-		[operationQueue release];
-		operationQueue = nil;
+		[_operationQueue removeObserver:self forKeyPath:@"operationCount"];
+		[_operationQueue cancelAllOperations];
+		[_operationQueue release];
+		_operationQueue = nil;
 	}
 }
 
 - (BOOL)isRequesting {
-	return ([operationQueue operationCount] > 0);
+	return ([_operationQueue operationCount] > 0);
 }
 
 -(void)requestDataWithURL:(NSURL*)url {
 	if (url) {
-		if (!operationQueue)
-			operationQueue = [[NSOperationQueue alloc] init];
+		NSOperationQueue *operationQueue = [self operationQueue];
 		
 		EPCHTTPRequest *request = [EPCHTTPRequest requestWithURL:url delegate:self];
 		request.responseStringEncoding = [self responseStringEncoding];
@@ -59,8 +74,7 @@
 
 - (void)requestDataWithRequest:(NSURLRequest *)urlRequest {
 	if (urlRequest) {
-		if (!operationQueue)
-			operationQueue = [[NSOperationQueue alloc] init];
+		NSOperationQueue *operationQueue = [self operationQueue];
 		
 		EPCHTTPRequest *request = [EPCHTTPRequest requestWithRequest:urlRequest delegate:self];
 		request.responseStringEncoding = [self responseStringEncoding];
@@ -80,8 +94,7 @@
 	NSURL *url = [NSURL URLWithString:urlString];
 	
 	if (url) {
-		if (!operationQueue)
-			operationQueue = [[NSOperationQueue alloc] init];
+		NSOperationQueue *operationQueue = [self operationQueue];
 		
 		EPCHTTPRequest *request = [EPCHTTPRequest requestWithURL:url delegate:self];
 		request.responseStringEncoding = [self responseStringEncoding];
@@ -125,6 +138,9 @@
 #pragma mark - Response
 
 -(void)epcHTTPRequestStarted:(EPCHTTPRequest *)request {
+	if (self.isHandlingNetworkActivityIndicator) {
+		[[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+	}
 	if ([self.delegate respondsToSelector:@selector(epcWebService:requestStartedWithURL:)]) {
 		NSURL *url = request.url;
 		if (!url) {
@@ -269,8 +285,8 @@
 		if (error)
 			NSLog(@"%s Warning: Error while deleting cache folder (%@). %@", __PRETTY_FUNCTION__, path, error);
 #endif
-		[cachePath release];
-		cachePath = nil;
+		[_cachePath release];
+		_cachePath = nil;
 	}
 	return (error == nil);
 }
@@ -334,22 +350,22 @@
 }
 
 - (NSString*)cachePath {
-	if (!cachePath) {
-		cachePath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"EPCWSCache/%@", NSStringFromClass([self class])]];
+	if (!_cachePath) {
+		_cachePath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"EPCWSCache/%@", NSStringFromClass([self class])]];
 		NSFileManager *fm = [NSFileManager defaultManager];
-		if (![fm fileExistsAtPath:cachePath]) {
+		if (![fm fileExistsAtPath:_cachePath]) {
 			NSError *error = nil;
-			[fm createDirectoryAtPath:cachePath withIntermediateDirectories:YES attributes:nil error:&error];
+			[fm createDirectoryAtPath:_cachePath withIntermediateDirectories:YES attributes:nil error:&error];
 			if (error) {
 #ifdef DEBUG
-				NSLog(@"%s Warning: Error while trying to create cache folder (%@). %@", __PRETTY_FUNCTION__, cachePath,error);
+				NSLog(@"%s Warning: Error while trying to create cache folder (%@). %@", __PRETTY_FUNCTION__, _cachePath,error);
 #endif
-				cachePath = nil;
+				_cachePath = nil;
 			}
 		}
-		[cachePath retain];
+		[_cachePath retain];
 	}
-	return cachePath;
+	return _cachePath;
 }
 
 

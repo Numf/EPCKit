@@ -125,6 +125,11 @@
 @property (assign) id<EPCWebServiceDelegate> delegate;
 
 /*
+ If it should handle the Network Activity Indicator. Default is NO.
+ */
+@property (readwrite,getter=isHandlingNetworkActivityIndicator) BOOL handleNetworkActivityIndicator;
+
+/*
  If it's requesting.
  */
 @property (readonly) BOOL isRequesting;
