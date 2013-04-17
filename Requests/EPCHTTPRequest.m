@@ -62,7 +62,7 @@
 	[_operationQueue cancelAllOperations];
 }
 - (void)startAsynchronous {
-	NSAssert(_url, @"%@ %s no URL to start the request.", NSStringFromClass([self class]), __PRETTY_FUNCTION__);
+	NSAssert(_url || _urlRequest, @"%@ %s no URL or NSURLRequest to start the request.", NSStringFromClass([self class]), __PRETTY_FUNCTION__);
 	
 	if (_url || _urlRequest) {
 		[_operationQueue cancelAllOperations];
