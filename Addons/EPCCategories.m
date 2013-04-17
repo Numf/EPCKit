@@ -79,10 +79,13 @@
 	return [self loadFromNibName:NSStringFromClass(self)];
 }
 + (id)loadFromNibReplacingView:(UIView *)view {
-	UIView *vv = [self loadFromNib];
-	vv.frame = view.frame;
-	[view.superview addSubview:vv];
-	[view removeFromSuperview];
+	UIView *vv = nil;
+	if (view && view.superview) {
+		vv = [self loadFromNib];
+		vv.frame = view.frame;
+		[view.superview addSubview:vv];
+		[view removeFromSuperview];
+	}
 	return vv;
 }
 - (void)removeAllSubviews {
