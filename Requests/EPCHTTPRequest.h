@@ -29,9 +29,14 @@
 
 @interface EPCHTTPRequest : NSOperation
 /*
- Allocates the request.
+ Allocates the request with an URL.
  */
 - (EPCHTTPRequest*)initWithURL:(NSURL *)url delegate:(id<EPCHTTPRequestDelegate>)delegate;
+
+/*
+ Allocates the request with a NSURLRequest.
+ */
+- (EPCHTTPRequest*)initWithURLRequest:(NSURLRequest *)urlRequest delegate:(id<EPCHTTPRequestDelegate>)delegate;
 
 /*
  Autoreleased request for NSURLRequest.
