@@ -66,7 +66,7 @@
 	
 	if (_url || _urlRequest) {
 		[_operationQueue cancelAllOperations];
-		if (_operationQueue)
+		if (!_operationQueue)
 			_operationQueue = [NSOperationQueue new];
 		
 		EPCHTTPRequest *operation = [[EPCHTTPRequest new] autorelease];
