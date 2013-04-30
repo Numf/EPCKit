@@ -43,6 +43,10 @@
 - (void)ajustToHeightAndStopBouncing;
 @end
 
+@interface UIResponder (EPCCategories)
++ (id) currentFirstResponder;
+@end
+
 #endif
 
 @interface NSUserDefaults (EPCCategories)

@@ -173,6 +173,19 @@
 	}
 }
 @end
+
+static __weak id currentFirstResponder;
+@implementation UIResponder (EPCCategories)
++(id)currentFirstResponder {
+    currentFirstResponder = nil;
+    [[UIApplication sharedApplication] sendAction:@selector(findFirstResponder:) to:nil from:nil forEvent:nil];
+    return currentFirstResponder;
+}
+-(void)findFirstResponder:(id)sender {
+	currentFirstResponder = self;
+}
+@end
+
 #endif
 
 #pragma mark - End iOS Only -
