@@ -68,6 +68,7 @@
 		id obj = [subviews objectAtIndex:i];
 		if ([obj isKindOfClass:[UITextField class]]) {
 			[obj becomeFirstResponder];
+			break;
 		}
 	}
 }
