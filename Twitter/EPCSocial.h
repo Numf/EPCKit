@@ -27,7 +27,7 @@ typedef void (^EPCSocialHandler)(BOOL success, NSError *error, id data);
 
 + (BOOL)canAccessFacebook;
 
-+ (void)requestAccessToFacebookShowingUI:(BOOL)showUI handler:(EPCSocialHandler)handler;
++ (void)requestAccessToFacebook:(EPCSocialHandler)handler;
 
 + (void)requestFacebookAccountUsername:(EPCSocialHandler)handler;
 
