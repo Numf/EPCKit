@@ -44,7 +44,7 @@
 @end
 
 @interface UIResponder (EPCCategories)
-+ (id) currentFirstResponder;
++ (id)currentFirstResponder;
 @end
 
 #endif
@@ -60,6 +60,7 @@
 - (NSArray*)reversedArray;
 - (NSArray*)sortedArrayWithKey:(NSString*)property ascending:(BOOL)asc;
 - (NSArray*)sortedArrayUsingArray:(NSArray*)otherArray;
+- (id)firstObject;
 @end
 
 @interface NSMutableArray (EPCCategories)

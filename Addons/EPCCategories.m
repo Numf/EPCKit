@@ -235,6 +235,12 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 - (NSArray *)sortedArrayUsingArray:(NSArray *)otherArray {
     return [self sortedArrayUsingFunction:comparatorForSortingUsingArray context:otherArray];
 }
+- (id)firstObject {
+	if ([self count] > 0) {
+		return [self objectAtIndex:0];
+	}
+	return nil;
+}
 @end
 
 @implementation NSMutableArray (EPCCategories)
