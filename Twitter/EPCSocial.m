@@ -46,7 +46,7 @@
 + (void)RequestFacebookUsernameOnIOS5:(EPCSocialHandler)handler {
 	[FBRequestConnection startForMeWithCompletionHandler:^(FBRequestConnection *connection, id result, NSError *error) {
 		NSString *userName = [result isKindOfClass:[NSDictionary class]]?[result objectForKey:@"name"]:nil;
-		handler(error!=nil, error, userName);
+		handler(error==nil, error, userName);
 	}];
 }
 
@@ -56,7 +56,7 @@
 			[self RequestFacebookUsernameOnIOS5:handler];
 		}
 		else {
-			[self requestAccessToFacebook:^(BOOL hasAccess, NSError *error, id data) {
+			[self requestAccessToFacebookShowingUI:NO handler:^(BOOL hasAccess, NSError *error, id data) {
 				if (hasAccess) {
 					[self RequestFacebookUsernameOnIOS5:handler];
 				}
@@ -79,10 +79,11 @@
 	}];
 }
 
-+ (void)requestAccessToFacebook:(EPCSocialHandler)handler {
++ (void)requestAccessToFacebookShowingUI:(BOOL)showUI handler:(EPCSocialHandler)handler; {
 	if (IOS_VERSION_LESS_THAN(@"6.0")) {
 		NSArray *permissions = [self facebookPermissions];
 		BOOL publish = NO;
+		BOOL listenHandler = NO;
 		for (NSString *per in permissions) {
 			if ([per rangeOfString:@"publish"].location != NSNotFound) {
 				publish = YES;
@@ -90,10 +91,12 @@
 			}
 		}
 		if (publish) {
-			[FBSession openActiveSessionWithPublishPermissions:permissions defaultAudience:FBSessionDefaultAudienceEveryone allowLoginUI:<#(BOOL)#> completionHandler:<#^(FBSession *session, FBSessionState status, NSError *error)handler#>]
+			[FBSession openActiveSessionWithPublishPermissions:permissions defaultAudience:[self facebookAudienceForIOS5] allowLoginUI:YES completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
+				handler(status == FBSessionStateOpen, error, nil);
+			}];
 		}
 		else {
-			[FBSession openActiveSessionWithReadPermissions:permissions allowLoginUI:YES completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
+			[FBSession openActiveSessionWithReadPermissions:permissions allowLoginUI:showUI completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
 				handler(status == FBSessionStateOpen, error, nil);
 			}];
 		}
@@ -155,9 +158,19 @@
 }
 
 + (int)facebookAudienceForIOS5 {
-#warning  AUQI!
-	
-	FBSessionDefaultAudienceEveryone
+	NSString *audience = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"FacebookAudienceKey"];
+	NSAssert(audience != nil, @"FacebookAudienceKey is not set in Info.plist");
+	int result = FBSessionDefaultAudienceNone;
+	if ([audience isEqualToString:@"ACFacebookAudienceEveryone"]) {
+		result = FBSessionDefaultAudienceEveryone;
+	}
+	else if ([audience isEqualToString:@"ACFacebookAudienceFriends"]) {
+		result = FBSessionDefaultAudienceFriends;
+	}
+	else if ([audience isEqualToString:@"ACFacebookAudienceOnlyMe"]) {
+		result = FBSessionDefaultAudienceOnlyMe;
+	}
+	return result;
 }
 
 + (NSString* const)facebookAudience {
