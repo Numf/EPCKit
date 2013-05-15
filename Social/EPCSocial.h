@@ -27,12 +27,18 @@ typedef void (^EPCSocialHandler)(BOOL success, NSError *error, id data);
 
 + (BOOL)canAccessFacebook;
 
+/*
+ On iOS 5 the handler will receive every state change.
+ */
 + (void)requestAccessToFacebookShowingUI:(BOOL)showUI handler:(EPCSocialHandler)handler;
 
 + (void)requestFacebookAccountUsername:(EPCSocialHandler)handler;
 
 + (void)shareFacebookText:(NSString *)text image:(UIImage *)image url:(NSURL*)url viewController:(UIViewController*)viewController completionHandler:(EPCSocialHandler)handler;
 
-+ (void)logoutFromFacebook:(EPCSocialHandler)handler; // return YES for iOS 6 or later, but does nothing
+/*
+ For iOS 6 it returns YES but does nothing.
+ */
++ (void)logoutFromFacebook:(EPCSocialHandler)handler;
 
 @end

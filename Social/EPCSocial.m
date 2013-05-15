@@ -15,7 +15,9 @@
 
 + (BOOL)canAccessTwitter {
 	if (IOS_VERSION_LESS_THAN(@"6.0")) {
-		return [TWTweetComposeViewController canSendTweet];
+		ACAccountStore *accountStore = [[[ACAccountStore alloc] init] autorelease];
+		ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
+		return accountType.accessGranted;
 	}
 	return [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter];
 }
@@ -79,33 +81,55 @@
 	}];
 }
 
++ (void)askForFacebookPublishPermissionsOnIOS5ShowingUI:(BOOL)showUI handler:(EPCSocialHandler)handler {
+	NSArray *publishPermissions = [self facebookPublishPermissions];
+	NSAssert([publishPermissions count] > 0, @"FacebookPublishPermissionsKey or FacebookReadPermissionsKey must be set in Info.plist");
+	[FBSession openActiveSessionWithPublishPermissions:publishPermissions defaultAudience:[self facebookAudienceForIOS5] allowLoginUI:showUI completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
+		if (handler != nil) {
+			handler(status == FBSessionStateOpen, error, nil);
+		}
+	}];
+}
+
 + (void)requestAccessToFacebookShowingUI:(BOOL)showUI handler:(EPCSocialHandler)handler; {
 	if (IOS_VERSION_LESS_THAN(@"6.0")) {
-		NSArray *permissions = [self facebookPermissions];
-		BOOL publish = NO;
-		BOOL listenHandler = NO;
-		for (NSString *per in permissions) {
-			if ([per rangeOfString:@"publish"].location != NSNotFound) {
-				publish = YES;
-				break;
-			}
-		}
-		if (publish) {
-			[FBSession openActiveSessionWithPublishPermissions:permissions defaultAudience:[self facebookAudienceForIOS5] allowLoginUI:YES completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
-				handler(status == FBSessionStateOpen, error, nil);
-			}];
+		NSArray *readPermissions = [self facebookReadPermissions];
+		
+		if ([readPermissions count] == 0) {
+			// no read permissions
+			[self askForFacebookPublishPermissionsOnIOS5ShowingUI:showUI handler:handler];
 		}
 		else {
-			[FBSession openActiveSessionWithReadPermissions:permissions allowLoginUI:showUI completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
-				handler(status == FBSessionStateOpen, error, nil);
+			// ask for read permissions
+			[FBSession openActiveSessionWithReadPermissions:readPermissions allowLoginUI:showUI completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
+				
+				NSArray *publishPermissions = [self facebookPublishPermissions];
+				
+				if (status == FBSessionStateOpen && [publishPermissions count] > 0) {
+					// after read is granted, ask for publish
+					[self askForFacebookPublishPermissionsOnIOS5ShowingUI:showUI handler:handler];
+				}
+				else {
+					if (handler != nil) {
+						handler(status == FBSessionStateOpen, error, nil);
+					}
+				}
 			}];
 		}
 	}
 	else {
 		[self requestAccessToAccountsWithIdentifier:ACAccountTypeIdentifierFacebook handler:^(BOOL success, NSError *error, id data) {
-			handler(success, nil, nil);
+			if (handler != nil) {
+				handler(success, nil, nil);
+			}
 		}];
 	}
+}
+
++ (void)askForFacebookPublishPermissionsAccountStore:(ACAccountStore*)accountStore accountType:(ACAccountType*)accountType options:(NSDictionary*)options handler:(EPCSocialHandler)handler {
+	[accountStore requestAccessToAccountsWithType:accountType options:options completion:^(BOOL granted, NSError *error) {
+		handler(granted, error, accountStore);
+	}];
 }
 
 + (void)requestAccessToAccountsWithIdentifier:(NSString * const)identifier handler:(EPCSocialHandler)handler {
@@ -126,14 +150,52 @@
 		NSDictionary *options = nil;
 		
 		if (identifier == ACAccountTypeIdentifierFacebook) {
-			options = [self facebookOptions];
-		}
-		
-		[accountStore requestAccessToAccountsWithType:accountType options:options completion:^(BOOL granted, NSError *error) {
-			handler(granted, error, accountStore);
 			
-			[accountStore release];
-		}];
+			// Facebook
+			
+			NSArray *readPermissions = [self facebookReadPermissions];
+			
+			NSArray *publishPermissions = [self facebookPublishPermissions];
+			
+			if ([readPermissions count] == 0) {
+				// no read permissions, ask for publish
+				NSAssert([publishPermissions count] > 0, @"FacebookPublishPermissionsKey or FacebookReadPermissionsKey must be set in Info.plist");
+				options = [self facebookOptionsForPermissions:publishPermissions];
+				[self askForFacebookPublishPermissionsAccountStore:accountStore accountType:accountType options:options handler:^(BOOL success, NSError *error, id data) {
+					handler(success, error, accountStore);
+					[accountStore release];
+				}];
+				
+			}
+			else {
+				// ask for read
+				options = [self facebookOptionsForPermissions:readPermissions];
+				[self askForFacebookPublishPermissionsAccountStore:accountStore accountType:accountType options:options handler:^(BOOL success, NSError *error, id data) {
+					if (success && [publishPermissions count] > 0) {
+						// read granted, ask for publish
+						[self askForFacebookPublishPermissionsAccountStore:accountStore accountType:accountType options:options handler:^(BOOL success, NSError *error, id data) {
+							handler(success, error, accountStore);
+							[accountStore release];
+						}];
+					}
+					else {
+						handler(success, error, accountStore);
+						[accountStore release];
+					}
+				}];
+			}
+			
+		}
+		else {
+			
+			// Twitter
+			
+			[accountStore requestAccessToAccountsWithType:accountType options:options completion:^(BOOL granted, NSError *error) {
+				handler(granted, error, accountStore);
+				
+				[accountStore release];
+			}];
+		}
 	}
 }
 
@@ -151,10 +213,12 @@
 	}
 }
 
-+ (NSArray*)facebookPermissions {
-	NSArray *permissions = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"FacebookPermissionsKey"];
-	NSAssert(permissions != nil && [permissions isKindOfClass:[NSArray class]], @"FacebookPermissionsKey is not set or isn't an array in Info.plist");
-	return permissions;
++ (NSArray*)facebookPublishPermissions {
+	return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"FacebookPublishPermissionsKey"];
+}
+
++ (NSArray*)facebookReadPermissions {
+	return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"FacebookReadPermissionsKey"];
 }
 
 + (int)facebookAudienceForIOS5 {
@@ -185,15 +249,15 @@
 		audience = ACFacebookAudienceOnlyMe;
 	}
 	NSAssert(audience != nil, @"FacebookAudienceKey is not set in Info.plist");
+	
+	return audience;
 }
 
-+ (NSDictionary*)facebookOptions {
++ (NSDictionary*)facebookOptionsForPermissions:(NSArray*)permissions {
 	NSString *facebookAppId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"FacebookAppID"];
 	NSAssert(facebookAppId != nil, @"FacebookAppID is not set in Info.plist");
 	
 	NSString *const audience = [self facebookAudience];
-	
-	NSArray *permissions = [self facebookPermissions];
 	
 	NSDictionary *options =  @{ACFacebookAppIdKey: facebookAppId, ACFacebookPermissionsKey: permissions, ACFacebookAudienceKey: audience};
 	
@@ -239,7 +303,29 @@
 
 + (void)shareFacebookText:(NSString *)text image:(UIImage *)image url:(NSURL *)url viewController:(UIViewController *)viewController completionHandler:(EPCSocialHandler)handler {
 	if (IOS_VERSION_LESS_THAN(@"6.0")) {
-		//TODO: ios 5 aqui
+		NSMutableDictionary* params = [NSMutableDictionary dictionary];
+		NSString *graphPath = @"me/feed";
+		if (text) {
+			[params setObject:text forKey:@"message"];
+		}
+		if (image) {
+			NSData *data = UIImagePNGRepresentation(image);
+			if (data) {
+				[params setObject:UIImagePNGRepresentation(image) forKey:@"picture"];
+				graphPath = @"me/photos";
+			}
+		}
+		if (url) {
+			[params setObject:[url absoluteString] forKey:@"link"];
+		}
+		
+		[FBRequestConnection startWithGraphPath:graphPath parameters:params HTTPMethod:@"POST" completionHandler:^(FBRequestConnection *connection, id result, NSError *error)
+		 {
+			 DLog(@"%@ %@ %@", connection, result, error);
+			 if (handler != nil) {
+				 handler(error==nil, error, result);
+			 }
+		 }];
 	}
 	else {
 		[self shareForServiceType:SLServiceTypeFacebook text:text image:image url:url viewController:viewController completionHandler:handler];
