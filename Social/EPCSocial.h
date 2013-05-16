@@ -27,9 +27,6 @@ typedef void (^EPCSocialHandler)(BOOL success, NSError *error, id data);
 
 + (BOOL)canAccessFacebook;
 
-/*
- On iOS 5 the handler will receive every state change.
- */
 + (void)requestAccessToFacebookShowingUI:(BOOL)showUI handler:(EPCSocialHandler)handler;
 
 + (void)requestFacebookAccountUsername:(EPCSocialHandler)handler;

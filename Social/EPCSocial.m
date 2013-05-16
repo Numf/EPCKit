@@ -84,10 +84,14 @@
 + (void)askForFacebookPublishPermissionsOnIOS5ShowingUI:(BOOL)showUI handler:(EPCSocialHandler)handler {
 	NSArray *publishPermissions = [self facebookPublishPermissions];
 	NSAssert([publishPermissions count] > 0, @"FacebookPublishPermissionsKey or FacebookReadPermissionsKey must be set in Info.plist");
+	__block BOOL listening = YES; // for ignoring every state change
 	[FBSession openActiveSessionWithPublishPermissions:publishPermissions defaultAudience:[self facebookAudienceForIOS5] allowLoginUI:showUI completionHandler:^(FBSession *session, FBSessionState status, NSError *error) {
-		if (handler != nil) {
-			handler(status == FBSessionStateOpen, error, nil);
+		if (listening) {
+			if (handler != nil) {
+				handler(status == FBSessionStateOpen, error, nil);
+			}
 		}
+		listening = NO;
 	}];
 }
 
@@ -128,7 +132,9 @@
 
 + (void)askForFacebookPublishPermissionsAccountStore:(ACAccountStore*)accountStore accountType:(ACAccountType*)accountType options:(NSDictionary*)options handler:(EPCSocialHandler)handler {
 	[accountStore requestAccessToAccountsWithType:accountType options:options completion:^(BOOL granted, NSError *error) {
-		handler(granted, error, accountStore);
+		if (handler != nil) {
+			handler(granted, error, accountStore);
+		}
 	}];
 }
 
@@ -136,13 +142,14 @@
 	
 	ACAccountStore *accountStore = [[ACAccountStore alloc] init];
 	
-    ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:identifier];
+    ACAccountType *accountType = [[accountStore accountTypeWithAccountTypeIdentifier:identifier] retain];
 	
 	if (IOS_VERSION_LESS_THAN(@"6.0")) {
 		[accountStore requestAccessToAccountsWithType:accountType withCompletionHandler:^(BOOL granted, NSError *error) {
 			handler(granted, error, accountStore);
 			
 			[accountStore release];
+			[accountType release];
 		}];
 	}
 	else {
@@ -162,8 +169,11 @@
 				NSAssert([publishPermissions count] > 0, @"FacebookPublishPermissionsKey or FacebookReadPermissionsKey must be set in Info.plist");
 				options = [self facebookOptionsForPermissions:publishPermissions];
 				[self askForFacebookPublishPermissionsAccountStore:accountStore accountType:accountType options:options handler:^(BOOL success, NSError *error, id data) {
-					handler(success, error, accountStore);
+					if (handler != nil) {
+						handler(success, error, accountStore);
+					}
 					[accountStore release];
+					[accountType release];
 				}];
 				
 			}
@@ -174,13 +184,19 @@
 					if (success && [publishPermissions count] > 0) {
 						// read granted, ask for publish
 						[self askForFacebookPublishPermissionsAccountStore:accountStore accountType:accountType options:options handler:^(BOOL success, NSError *error, id data) {
-							handler(success, error, accountStore);
+							if (handler != nil) {
+								handler(success, error, accountStore);
+							}
 							[accountStore release];
+							[accountType release];
 						}];
 					}
 					else {
-						handler(success, error, accountStore);
+						if (handler != nil) {
+							handler(success, error, accountStore);
+						}
 						[accountStore release];
+						[accountType release];
 					}
 				}];
 			}
@@ -191,9 +207,11 @@
 			// Twitter
 			
 			[accountStore requestAccessToAccountsWithType:accountType options:options completion:^(BOOL granted, NSError *error) {
-				handler(granted, error, accountStore);
-				
+				if (handler != nil) {
+					handler(granted, error, accountStore);
+				}
 				[accountStore release];
+				[accountType release];
 			}];
 		}
 	}
