@@ -14,19 +14,20 @@
 #pragma mark - Avaliability
 
 + (BOOL)canAccessTwitter {
-	if (IOS_VERSION_LESS_THAN(@"6.0")) {
-		ACAccountStore *accountStore = [[[ACAccountStore alloc] init] autorelease];
-		ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
-		return accountType.accessGranted;
-	}
-	return [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter];
+	ACAccountStore *accountStore = [[[ACAccountStore alloc] init] autorelease];
+	ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
+	ACAccount *account = [[[ACAccount alloc] initWithAccountType:accountType] autorelease];
+	return account.username != nil;
 }
 
 + (BOOL)canAccessFacebook {
 	if (IOS_VERSION_LESS_THAN(@"6.0")) {
 		return [[FBSession activeSession] isOpen];
 	}
-	return [SLComposeViewController isAvailableForServiceType:SLServiceTypeFacebook];
+	ACAccountStore *accountStore = [[[ACAccountStore alloc] init] autorelease];
+	ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierFacebook];
+	ACAccount *account = [[[ACAccount alloc] initWithAccountType:accountType] autorelease];
+	return account.username != nil;
 }
 
 #pragma mark - Username
