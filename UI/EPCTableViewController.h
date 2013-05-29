@@ -10,20 +10,25 @@
  * * INSTRUCTIONS * *
  
  
- * Required to override:
+// * Required to override:
  
- - reloadTableViewDataSource
- 
- 
- * Optional to override and call super:
- 
- - scrollViewDidScroll:
- - scrollViewDidEndDragging:willDecelerate:
+- (void)reloadTableViewDataSource {}
  
  
- * Optional if you want to customize refresh view
+// * Optional to override and call super:
+
+- (void)scrollViewDidScroll:(UIScrollView*)scrollView {}
  
- - customRefreshView (Note Autosizing rules)
+- (void)scrollViewDidEndDragging:(UIScrollView*)scrollView	willDecelerate:(BOOL)willDecelerate {}
+
+
+// * Optional if you want to customize refresh view
+// Localize:
+//"Release to refresh..." = "Release to refresh...";
+//"Pull down to refresh..." = "Pull down to refresh...";
+//"Loading..." = "Loading...";
+ 
+- (EPCTableViewRefreshView*)customRefreshView  {}
  
 */
 
@@ -46,7 +51,7 @@
 - (void)reloadTableViewDataSource; // * REQUIRED OVERRIDE
 
 /*
- Your custom view will be streched to TableView's width and height, note your Autosizing rules.
+ Your custom view will be streched to TableView's width and height, note your Autosizing rules, should be Flexible Right and Top.
  */
 - (EPCTableViewRefreshView*)customRefreshView; // * OPTIONAL OVERRIDE (You can load a nib with EGORefreshTableHeaderView)
 

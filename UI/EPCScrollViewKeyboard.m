@@ -35,9 +35,10 @@
 
 
 - (void)keyboardDidShowNotification:(NSNotification*)aNotification {
-	assert(UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPad); // currently only tested with iPhone
 	NSDictionary* info = [aNotification userInfo];
-	CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+	UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+	CGRect rect = [window convertRect:[[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue] toView:self];
+	CGSize kbSize = rect.size;
 	self.frameHeight -= kbSize.height;
 	
 	UIView *subview = [self.subviews objectAtIndex:0];
@@ -47,9 +48,10 @@
 }
 
 - (void)keyboardWillHideNotification:(NSNotification*)aNotification {
-	assert(UI_USER_INTERFACE_IDIOM() != UIUserInterfaceIdiomPad); // currently only tested with iPhone
 	NSDictionary* info = [aNotification userInfo];
-	CGSize kbSize = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+	UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+	CGRect rect = [window convertRect:[[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue] toView:self];
+	CGSize kbSize = rect.size;
 	self.frameHeight += kbSize.height;
 }
 
