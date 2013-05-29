@@ -14,7 +14,14 @@
 	[super awakeFromNib];
 	
 	UIImage *img = [self backgroundImageForState:UIControlStateSelected];
-	[self setBackgroundImage:img forState:UIControlStateHighlighted|UIControlStateSelected];
+	if (img) {
+		[self setBackgroundImage:img forState:UIControlStateHighlighted|UIControlStateSelected];
+	}
+	
+	img = [self imageForState:UIControlStateSelected];
+	if (img) {
+		[self setImage:img forState:UIControlStateHighlighted|UIControlStateSelected];
+	}
 	self.exclusiveTouch = YES;
 }
 
