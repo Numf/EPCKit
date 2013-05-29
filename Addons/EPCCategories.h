@@ -16,6 +16,14 @@
 + (UIImage*)imageWithContentsOfFileNamed:(NSString*)name; /* this prevents caching the image object */
 + (UIImage*)imageWithContentsOfFileInDocumentsDirectoryNamed:(NSString*)name;
 + (UIImage*)imageWithContentsOfFileInCacheDirectoryNamed:(NSString*)name;
+- (UIImage *)imageAtRect:(CGRect)rect;
+- (UIImage *)imageByScalingProportionallyToMinimumSize:(CGSize)targetSize;
+- (UIImage *)imageByScalingProportionallyToSize:(CGSize)targetSize;
+- (UIImage *)imageByScalingToSize:(CGSize)targetSize;
+- (UIImage *)imageRotatedByRadians:(CGFloat)radians;
+- (UIImage *)imageRotatedByDegrees:(CGFloat)degrees;
+- (UIImage *)imageTintedWithColor:(UIColor *)color;
+- (UIImage *)imageTintedWithColor:(UIColor *)color fraction:(CGFloat)fraction;
 @end
 
 @interface UIView (EPCCategories)
