@@ -728,7 +728,7 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 		if(!success){
 			NSLog(@"Error excluding %@ from backup %@", [url lastPathComponent], error);
 		}
-		[url release];
+//		[url release];
 		assert(success);
 		return success;
 	}
