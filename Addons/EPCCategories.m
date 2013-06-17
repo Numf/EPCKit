@@ -295,6 +295,15 @@
 	
 	return self;
 }
+
++ (UIImage *)imageNamedA4I:(NSString*)name {
+	NSString *inch4name = [[name stringByDeletingPathExtension] stringByAppendingString:@"568h@2x.png"];
+	NSString *path = [[NSBundle mainBundle] pathForResource:[inch4name stringByDeletingPathExtension] ofType:[name pathExtension]];
+	if (path) {
+		return [UIImage imageNamed:[inch4name stringByAppendingPathExtension:[name pathExtension]]];
+	}
+	return [UIImage imageNamed:path];
+}
 @end
 
 @implementation UIApplication (EPCCategories)

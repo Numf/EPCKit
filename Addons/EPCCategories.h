@@ -24,6 +24,7 @@
 - (UIImage *)imageRotatedByDegrees:(CGFloat)degrees;
 - (UIImage *)imageTintedWithColor:(UIColor *)color;
 - (UIImage *)imageTintedWithColor:(UIColor *)color fraction:(CGFloat)fraction;
++ (UIImage *)imageNamedA4I:(NSString*)name;
 @end
 
 @interface UIView (EPCCategories)
