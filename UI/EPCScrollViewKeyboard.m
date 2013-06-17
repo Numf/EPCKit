@@ -29,6 +29,10 @@
 	subview.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
 	
 	[self setContentSize:subview.bounds.size];
+	
+	if (!self.showsVerticalScrollIndicator && !self.showsHorizontalScrollIndicator && !self.delegate) {
+		self.delegate = self;
+	}
 }
 
 #pragma mark - Keyboard
@@ -74,4 +78,11 @@
 		}
 	}
 }
+
+#pragma mark - Delegate
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+	[[UIResponder currentFirstResponder] resignFirstResponder];
+}
+
 @end

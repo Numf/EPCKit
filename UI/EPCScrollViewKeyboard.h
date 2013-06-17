@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface EPCScrollViewKeyboard : UIScrollView
+@interface EPCScrollViewKeyboard : UIScrollView <UIScrollViewDelegate>
 
 - (IBAction)nextTextField:(UITextField*)sender;
 
