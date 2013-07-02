@@ -56,6 +56,10 @@
 + (id)currentFirstResponder;
 @end
 
+@interface UIScrollView (EPCCategories)
+- (void)scrollToBottomAnimated:(BOOL)animated;
+@end
+
 #endif
 
 @interface NSUserDefaults (EPCCategories)

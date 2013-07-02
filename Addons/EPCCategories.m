@@ -449,6 +449,13 @@ static __weak id currentFirstResponder;
 }
 @end
 
+@implementation UIScrollView (EPCCategories)
+- (void)scrollToBottomAnimated:(BOOL)animated {
+	CGPoint bottomOffset = CGPointMake(0, self.contentSize.height - self.bounds.size.height);
+	[self setContentOffset:bottomOffset animated:animated];
+}
+@end
+
 #endif
 
 #pragma mark - End iOS Only -
