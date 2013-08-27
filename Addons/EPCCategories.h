@@ -6,6 +6,9 @@
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+
+// IOS ONLY
+
 @interface UIApplication (EPCCategories)
 + (NSString*)documentsDirectoryPath;
 + (NSString*)cacheDirectoryPath;
@@ -58,6 +61,14 @@
 
 @interface UIScrollView (EPCCategories)
 - (void)scrollToBottomAnimated:(BOOL)animated;
+@end
+
+#else
+
+// MAC ONLY
+
+@interface NSAttributedString (EPCCategories)
++ (id)hyperlinkFromString:(NSString*)inString withURL:(NSURL*)aURL;
 @end
 
 #endif
