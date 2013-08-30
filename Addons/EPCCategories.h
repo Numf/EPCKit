@@ -46,6 +46,7 @@
 
 @interface UIViewController (EPCCategories)
 - (void)unloadView;
+- (IBAction)popViewControllerAnimated;
 @end
 
 @interface UIWebView (EPCCategories)

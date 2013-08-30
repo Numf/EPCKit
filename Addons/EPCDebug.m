@@ -26,6 +26,10 @@
 		method_exchangeImplementations(origMethod, newMethod);
 }
 
+- (void)myDealloc {
+	
+}
+
 @end
 
 @implementation UIViewController (DeallocDebugger)
