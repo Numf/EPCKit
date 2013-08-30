@@ -78,6 +78,7 @@
 + (BOOL)boolForKey:(NSString*)key;
 + (BOOL)syncObject:(id)object forKey:(NSString*)key;
 + (id)objectForKey:(NSString*)key;
++ (void)clearUserDefaults;
 @end
 
 @interface NSArray (EPCCategories)
