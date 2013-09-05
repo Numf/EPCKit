@@ -501,6 +501,10 @@ static __weak id currentFirstResponder;
 + (id)objectForKey:(NSString*)key {
 	return [[NSUserDefaults standardUserDefaults] objectForKey:key];
 }
++(void)clearUserDefaults {
+	NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
+	[[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+}
 @end
 
 @implementation	NSArray (EPCCategories)
