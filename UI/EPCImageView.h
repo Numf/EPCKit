@@ -103,8 +103,8 @@
 
 @interface GrabImageOperation : NSOperation
 +(GrabImageOperation*)grabImageOperationWithURL:(NSURL*)url epcImageView:(EPCImageView*)epcImageView;
-@property (nonatomic, retain) NSURL *url;
-@property (nonatomic, assign) EPCImageView *epcImageView;
-@property (nonatomic, retain) UIImage *grabbedImage;
-@property (nonatomic, retain) NSData *downloadedData;
+@property (nonatomic, strong) NSURL *url;
+@property (nonatomic, weak) EPCImageView *epcImageView;
+@property (nonatomic, strong) UIImage *grabbedImage;
+@property (nonatomic, strong) NSData *downloadedData;
 @end
