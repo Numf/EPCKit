@@ -16,6 +16,7 @@
 
 @interface EPCDropView : NSView {
 	BOOL _holdingAlt;
+	id<EPCDropViewDelegate> _delegate;
 }
 
 @property (assign) IBOutlet id<EPCDropViewDelegate> delegate;
