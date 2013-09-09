@@ -54,6 +54,11 @@
 + (NSCache*)imageCache;
 
 /*
+ Returns existing chached image for a givin URL or nil if there is none.
+ */
+- (UIImage*)cachedImageForURL:(NSURL*)url;
+
+/*
  Retry last URL.
  */
 - (BOOL)retry;

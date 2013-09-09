@@ -35,6 +35,10 @@
 	return cache;
 }
 
+- (UIImage *)cachedImageForURL:(NSURL *)url {
+	return [self.imageCache objectForKey:[url absoluteString]];
+}
+
 - (void)dealloc
 {
 	self.delegate = nil;
@@ -190,7 +194,7 @@
 			
 			BOOL imageIsFromCache = YES;
 			
-			self.grabbedImage = [epcImageView.imageCache objectForKey:[url absoluteString]];
+			self.grabbedImage = [epcImageView cachedImageForURL:url];
 			
 			if (!grabbedImage) {
 				
