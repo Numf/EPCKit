@@ -127,15 +127,19 @@
 	if (_preferences) {
 		if ([self changedPreferences]) {
 			
+			_changes = 0;
+			
 			[self willChangeValueForKey:@"preferences"];
 			
 			[_preferences writeToFile:[[self class] preferencesPath] atomically:YES];
 			
 			[self didChangeValueForKey:@"preferences"];
 			
+			
 			EPCPreferencesPlist *shared = [[self class] sharedInstance];
 			
 			if (self != shared) {
+				shared->_changes = 0;
 				[shared willChangeValueForKey:@"preferences"];
 				shared->_preferences = [NSMutableDictionary dictionaryWithDictionary:_preferences];
 				[shared didChangeValueForKey:@"preferences"];
