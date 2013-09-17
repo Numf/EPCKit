@@ -54,6 +54,11 @@
 + (NSCache*)imageCache;
 
 /*
+ Returns existing chached image for a givin URL or nil if there is none.
+ */
+- (UIImage*)cachedImageForURL:(NSURL*)url;
+
+/*
  Retry last URL.
  */
 - (BOOL)retry;
@@ -103,8 +108,8 @@
 
 @interface GrabImageOperation : NSOperation
 +(GrabImageOperation*)grabImageOperationWithURL:(NSURL*)url epcImageView:(EPCImageView*)epcImageView;
-@property (nonatomic, retain) NSURL *url;
-@property (nonatomic, assign) EPCImageView *epcImageView;
-@property (nonatomic, retain) UIImage *grabbedImage;
-@property (nonatomic, retain) NSData *downloadedData;
+@property (nonatomic, strong) NSURL *url;
+@property (nonatomic, weak) EPCImageView *epcImageView;
+@property (nonatomic, strong) UIImage *grabbedImage;
+@property (nonatomic, strong) NSData *downloadedData;
 @end
