@@ -16,9 +16,7 @@
 
 
 @implementation EPCImageView
-
 @synthesize imageCache,delegate;
-
 -(NSCache *)imageCache {
 	if (!imageCache && !_dontCachesImages) {
 		imageCacheIsDefault = YES;
@@ -35,10 +33,6 @@
 	return cache;
 }
 
-- (UIImage *)cachedImageForURL:(NSURL *)url {
-	return [self.imageCache objectForKey:[url absoluteString]];
-}
-
 - (void)dealloc
 {
 	self.delegate = nil;
@@ -47,6 +41,11 @@
 		self.imageCache = nil;
 	
 	[operationQueue cancelAllOperations];
+	[operationQueue release];
+	
+    [currentURL release];
+	
+    [super dealloc];
 }
 
 -(BOOL)retry {
@@ -75,6 +74,7 @@
 		[self requestWasCancelledForURL:currentURL];
 	}
 	
+	[currentURL release];
 	currentURL = nil;
 	
 	self.image = nil;
@@ -83,7 +83,7 @@
 	
 	if (url) {
 		
-		currentURL = url;
+		currentURL = [url retain];
 		
 		if (!actView && !self.hideActivityIndicator) {
 			actView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
@@ -93,6 +93,7 @@
 			else
 				actView.center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
 			[self addSubview:actView];
+			[actView release];
 		}
 		
 		
@@ -178,14 +179,16 @@
 	self.grabbedImage = nil;
 	self.epcImageView = nil;
 	self.downloadedData = nil;
+    [super dealloc];
 }
 + (GrabImageOperation*)grabImageOperationWithURL:(NSURL *)url epcImageView:(EPCImageView *)imgView {
-	GrabImageOperation *obj = [[GrabImageOperation alloc] init];
+	GrabImageOperation *obj = [[[GrabImageOperation alloc] init] autorelease];
 	obj.url = url;
 	obj.epcImageView = imgView;
 	return obj;
 }
 - (void)main {
+	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	@try {
 		BOOL isDone = NO;
 		
@@ -194,7 +197,7 @@
 			
 			BOOL imageIsFromCache = YES;
 			
-			self.grabbedImage = [epcImageView cachedImageForURL:url];
+			self.grabbedImage = [epcImageView.imageCache objectForKey:[url absoluteString]];
 			
 			if (!grabbedImage) {
 				
@@ -266,5 +269,6 @@
 			[self.epcImageView performSelectorOnMainThread:@selector(noImageFromOperation:) withObject:self waitUntilDone:YES];
 		}
 	}
+	[pool drain];
 }
 @end
