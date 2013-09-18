@@ -6,6 +6,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface EPCStrechableUIImageView : UIImageView
+@interface EPCStretchableUIImageView : UIImageView
 
 @end

@@ -227,7 +227,7 @@
 	CGAffineTransform t = CGAffineTransformMakeRotation(degreesToRadians(degrees));
 	rotatedViewBox.transform = t;
 	CGSize rotatedSize = rotatedViewBox.frame.size;
-	[rotatedViewBox release];
+	rotatedViewBox = nil;
 	
 	// Create the bitmap context
 	UIGraphicsBeginImageContext(rotatedSize);
@@ -303,6 +303,18 @@
 		return [UIImage imageNamed:[inch4name stringByAppendingPathExtension:[name pathExtension]]];
 	}
 	return [UIImage imageNamed:path];
+}
+
+- (UIImage *)resizableWidthImage {
+	return [self resizableImageWithCapInsets:UIEdgeInsetsMake(0, (self.size.width/2)-1, 0, (self.size.width/2))];
+}
+
+-(UIImage *)resizableHeightImage {
+	return [self resizableImageWithCapInsets:UIEdgeInsetsMake((self.size.height/2)-1, 0, (self.size.height/2), 0)];
+}
+
+- (UIImage *)resizableImage {
+	return [self resizableImageWithCapInsets:UIEdgeInsetsMake((self.size.height/2)-1, (self.size.width/2)-1, (self.size.height/2), (self.size.width/2))];
 }
 @end
 
@@ -520,8 +532,8 @@ static __weak id currentFirstResponder;
 	return [self sortedArrayUsingDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:key ascending:asc]]];
 }
 static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *context) {
-    NSUInteger index1 = [(NSArray *)context indexOfObject:object1];
-    NSUInteger index2 = [(NSArray *)context indexOfObject:object2];
+    NSUInteger index1 = [(__bridge NSArray *)context indexOfObject:object1];
+    NSUInteger index2 = [(__bridge NSArray *)context indexOfObject:object2];
     if (index1 < index2)
         return NSOrderedAscending;
     // else
@@ -531,7 +543,7 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
     return [object1 compare:object2];
 }
 - (NSArray *)sortedArrayUsingArray:(NSArray *)otherArray {
-    return [self sortedArrayUsingFunction:comparatorForSortingUsingArray context:otherArray];
+    return [self sortedArrayUsingFunction:comparatorForSortingUsingArray context:(__bridge void *)(otherArray)];
 }
 - (id)firstObject {
 	if ([self count] > 0) {
@@ -670,8 +682,8 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 	[str replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSLiteralSearch range:NSMakeRange(0, [str length])];
 	[str replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSLiteralSearch range:NSMakeRange(0, [str length])];
 	[str replaceOccurrencesOfString:@"&" withString:@"%26" options:NSLiteralSearch range:NSMakeRange(0, [str length])];
-	NSString *encodedString = [[str copy] autorelease];
-	[str release];
+	NSString *encodedString = [str copy];
+	str = nil;
 	return encodedString;
 }
 - (NSString*)stringByTruncatingToLength:(int)limit tail:(NSString*)tail {
@@ -693,7 +705,6 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 }
 
 -(NSString *)stringByRemovingCharacterSet:(NSCharacterSet*)characterSet {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	NSScanner *scanner = [[NSScanner alloc] initWithString:self];
 	[scanner setCharactersToBeSkipped:nil];
 	NSMutableString *result = [[NSMutableString alloc] init];
@@ -707,11 +718,10 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 				[result appendString:@" "];
 		}
 	}
-	[scanner release];
-	NSString *retString = [[NSString stringWithString:result] retain];
-	[result release];
-	[pool drain];
-	return [retString autorelease];
+	scanner = nil;
+	NSString *retString = [NSString stringWithString:result];
+	result = nil;
+	return retString;
 }
 
 -(NSString *)stringByRemovingNewLinesAndWhitespace {
@@ -736,7 +746,7 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 
 - (NSString *)stringByAllWordsFirstCharUpperCase {
 	NSArray *words = [self arrayByExplodingWithString:@" "];
-	NSMutableString *result = [[[NSMutableString alloc] initWithString:@""] autorelease];
+	NSMutableString *result = [[NSMutableString alloc] initWithString:@""];
 	for (NSString *str in words) {
 		if ([str length] > 0) {
 			[result appendString:[str stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[str substringToIndex:1] uppercaseString]]];
@@ -749,7 +759,7 @@ static NSInteger comparatorForSortingUsingArray(id object1, id object2, void *co
 
 #if TARGET_OS_IPHONE
 -(BOOL)excludePathFromBackup {
-	NSURL *url = [[[NSURL alloc] initFileURLWithPath:self] autorelease];
+	NSURL *url = [[NSURL alloc] initFileURLWithPath:self];
 	
 	if ([[[UIDevice currentDevice] systemVersion] isEqualToString:@"5.0.1"]) {
 		assert([[NSFileManager defaultManager] fileExistsAtPath: self]);

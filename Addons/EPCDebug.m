@@ -12,7 +12,7 @@
 
 + (void)load {
 #ifdef DEBUG
-	[self swizzle:[UIViewController class] orig:@selector(dealloc) new:@selector(myDealloc)];
+	[self swizzle:[UIViewController class] orig:NSSelectorFromString(@"dealloc") new:@selector(myDealloc)];
 #endif
 }
 

@@ -1,12 +1,12 @@
 //
-//  EPCStrechableUIImageView.m
+//  EPCStretchableUIImageView.m
 //
 //  Created by Everton Postay Cunha on 8/15/11.
 //
 
-#import "EPCStrechableUIImageView.h"
+#import "EPCStretchableUIImageView.h"
 
-@implementation EPCStrechableUIImageView
+@implementation EPCStretchableUIImageView
 
 -(void)awakeFromNib {
 	[super awakeFromNib];

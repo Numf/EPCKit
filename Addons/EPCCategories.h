@@ -28,6 +28,9 @@
 - (UIImage *)imageTintedWithColor:(UIColor *)color;
 - (UIImage *)imageTintedWithColor:(UIColor *)color fraction:(CGFloat)fraction;
 + (UIImage *)imageNamedA4I:(NSString*)name;
+- (UIImage*)resizableWidthImage;
+- (UIImage*)resizableHeightImage;
+- (UIImage*)resizableImage;
 @end
 
 @interface UIView (EPCCategories)
