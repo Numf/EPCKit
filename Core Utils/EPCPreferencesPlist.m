@@ -8,70 +8,6 @@
 
 @implementation EPCPreferencesPlist
 
-
-+ (id)sharedInstance {
-	static id obj = nil;
-	if (!obj) {
-		obj = [[[self class] alloc] init];
-	}
-	return obj;
-}
-
-- (id)objectForKey:(id)key {
-	NSMutableDictionary *prefs = [self preferencesDictionary];
-	
-	id obj = [prefs objectForKey:key];
-	
-	return obj;
-}
-
-- (void)setObject:(id)object forKey:(id)key {
-	if (object && key) {
-		NSMutableDictionary *prefs = [self preferencesDictionary];
-		
-		if (self.trackChanges) {
-			if (!_beforeChangesPreferences) {
-				_beforeChangesPreferences = [[NSDictionary alloc] initWithDictionary:prefs copyItems:YES];
-			}
-		}
-		
-		[prefs setObject:object forKey:key];
-		
-		if (self.trackChanges) {
-			[self updateChangesWithObject:object forKey:key];
-		}
-	}
-}
-
-- (void)updateChangesWithObject:(id)object forKey:(id)key {
-	_changes += [self changedObject:object forKey:key];
-}
-
-- (BOOL)changedObject:(id)object forKey:(id)key {
-	id before = [_beforeChangesPreferences objectForKey:key];
-	if (before) {
-		if ([self object:before isTheSameAs:object]) {
-			return 1;
-		}
-		else {
-			return -1;
-		}
-	}
-	return 1;
-}
-
-- (BOOL)object:(id)obj1 isTheSameAs:(id)obj2 {
-	NSAssert(NO, @"Override me %s", __PRETTY_FUNCTION__);
-/*
-	[obj1 isEqualToString:obj2];
-*/
-	return NO;
-}
-
-- (BOOL)changedPreferences {
-	return _changes > 0;
-}
-
 #pragma mark - PRIVATE
 
 - (void)dealloc
@@ -125,30 +61,21 @@
 - (void)save {
 	
 	if (_preferences) {
-		if ([self changedPreferences]) {
+		if ([self hasChanges]) {
 			
 			_changes = 0;
-			
+			_beforeChangesPreferences = nil;
 			[self willChangeValueForKey:@"preferences"];
 			
 			[_preferences writeToFile:[[self class] preferencesPath] atomically:YES];
 			
 			[self didChangeValueForKey:@"preferences"];
 			
-			
-			EPCPreferencesPlist *shared = [[self class] sharedInstance];
-			
-			if (self != shared) {
-				shared->_changes = 0;
-				[shared willChangeValueForKey:@"preferences"];
-				shared->_preferences = [NSMutableDictionary dictionaryWithDictionary:_preferences];
-				[shared didChangeValueForKey:@"preferences"];
-			}
-			
-			
 		}
 		
 	}
+	
+	[super save];
 }
 
 + (NSString*)preferencesPath {
