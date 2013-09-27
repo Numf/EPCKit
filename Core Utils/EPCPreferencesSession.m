@@ -55,10 +55,10 @@
 	id before = [_beforeChangesPreferences objectForKey:key];
 	if (before) {
 		if ([self object:before isTheSameAs:object]) {
-			return 1;
+			return -1;
 		}
 		else {
-			return -1;
+			return 1;
 		}
 	}
 	return 1;
@@ -98,9 +98,9 @@
 			if (self != shared) {
 				shared->_changes = 0;
 				shared->_beforeChangesPreferences = nil;
-				[shared willChangeValueForKey:@"preferences"];
+				[shared willChangeValueForKey:@"hasChanges"];
 				shared->_preferences = [NSMutableDictionary dictionaryWithDictionary:_preferences];
-				[shared didChangeValueForKey:@"preferences"];
+				[shared didChangeValueForKey:@"hasChanges"];
 			}
 			
 			
