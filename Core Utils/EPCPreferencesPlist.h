@@ -9,6 +9,11 @@
 
 @interface EPCPreferencesPlist : EPCPreferencesSession
 
+
+@property (nonatomic,readwrite) BOOL automaticallySaves;
+
+@property (nonatomic,readwrite) BOOL syncsWithICloud;
+
 /*
  MUST OVERRIDE:
  */

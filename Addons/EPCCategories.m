@@ -373,6 +373,10 @@
 		}
 	}
 }
+-(void)sizeToFitHeight{
+	CGSize size = [self sizeThatFits:CGSizeMake(self.frameWidth, MAXFLOAT)];
+	self.frameSize = size;
+}
 - (CGPoint)frameOrigin {
 	return self.frame.origin;
 }

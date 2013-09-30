@@ -20,6 +20,8 @@
     self = [super init];
     if (self) {
 		
+		self.automaticallySaves = YES;
+		
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(autoSave) name:UIApplicationWillTerminateNotification object:nil];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(autoSave) name:UIApplicationWillResignActiveNotification object:nil];
     }
@@ -27,8 +29,10 @@
 }
 
 - (void)autoSave {
-	if (self == [[self class] sharedInstance]) {
-		[self save];
+	if (self.automaticallySaves) {
+		if (self == [[self class] sharedInstance]) {
+			[self save];
+		}
 	}
 }
 

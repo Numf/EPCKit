@@ -26,6 +26,8 @@
 
 - (id)objectForKey:(id)key;
 
+- (void)removeObjectForKey:(id)key;
+
 - (BOOL)hasChanges;
 
 - (void)clearSession;

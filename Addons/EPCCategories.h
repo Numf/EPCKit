@@ -39,6 +39,7 @@
 + (id)loadFromNibReplacingView:(UIView*)view;
 - (void)removeAllSubviews;
 - (void)removeAllSubviewsOfClass:(Class)aClass;
+- (void)sizeToFitHeight;
 @property (nonatomic) CGPoint frameOrigin;
 @property (nonatomic) CGSize frameSize;
 @property (nonatomic) CGFloat frameX;
