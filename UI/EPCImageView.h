@@ -74,6 +74,16 @@
 - (void)loadImageWithoutURL;
 
 /*
+ The UIActivityIndicatorView style.
+ */
+@property (nonatomic, readwrite) UIActivityIndicatorViewStyle activityIndicatorViewStyle;
+
+/*
+ Custom ActivityIndicatorView if necessary.
+ */
+@property (nonatomic, assign) IBOutlet UIActivityIndicatorView *activityIndicatorView;
+
+/*
  The delegate.
  */
 @property (nonatomic, assign) IBOutlet id<EPCImageViewDelegate> delegate;
@@ -101,7 +111,8 @@
 /*
  Caches images. Default is NO, caching images.
  */
-@property (readwrite) BOOL dontCachesImages;
+@property (nonatomic, readwrite) BOOL dontCachesImages;
+
 @end
 
 

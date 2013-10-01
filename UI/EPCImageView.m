@@ -11,6 +11,7 @@
 	NSURL *currentURL;
 	NSOperationQueue *operationQueue;
 	BOOL imageCacheIsDefault;
+	BOOL customActView;
 }
 @end
 
@@ -18,6 +19,27 @@
 @implementation EPCImageView
 
 @synthesize imageCache,delegate;
+
+- (void)commonInit {
+	self.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+}
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        [self commonInit];
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+	self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self commonInit];
+    }
+    return self;
+}
 
 -(NSCache *)imageCache {
 	if (!imageCache && !_dontCachesImages) {
@@ -86,7 +108,7 @@
 		currentURL = url;
 		
 		if (!actView && !self.hideActivityIndicator) {
-			actView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+			actView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:self.activityIndicatorViewStyle];
 			actView.hidesWhenStopped = YES;
 			if ([self.delegate respondsToSelector:@selector(epcImageView:frameForActivityIndicatorView:)])
 				actView.frame = [self.delegate epcImageView:self frameForActivityIndicatorView:actView];
@@ -115,10 +137,29 @@
 	return currentURL;
 }
 
+-(void)setActivityIndicatorView:(UIActivityIndicatorView *)activityIndicatorView {
+	[actView removeFromSuperview];
+	actView = activityIndicatorView;
+	
+	if (activityIndicatorView) {
+		customActView = YES;
+	}
+	else {
+		customActView = NO;
+	}
+}
+
+- (UIActivityIndicatorView *)activityIndicatorView {
+	return actView;
+}
+
 - (void)setFrame:(CGRect)frame {
 	[super setFrame:frame];
-	if (![self.delegate respondsToSelector:@selector(epcImageView:frameForActivityIndicatorView:)])
-		actView.center = CGPointMake(frame.size.width/2, frame.size.height/2);
+	if (!customActView) {
+		if (![self.delegate respondsToSelector:@selector(epcImageView:frameForActivityIndicatorView:)]) {
+			actView.center = CGPointMake(frame.size.width/2, frame.size.height/2);
+		}
+	}
 }
 
 - (void)downloadedImageFromOperation:(GrabImageOperation*)operation {

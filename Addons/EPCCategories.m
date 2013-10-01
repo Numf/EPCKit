@@ -375,7 +375,7 @@
 }
 -(void)sizeToFitHeight{
 	CGSize size = [self sizeThatFits:CGSizeMake(self.frameWidth, MAXFLOAT)];
-	self.frameSize = size;
+	self.frameSize = CGSizeMake(self.frameWidth, size.height);
 }
 - (CGPoint)frameOrigin {
 	return self.frame.origin;

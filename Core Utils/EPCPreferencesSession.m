@@ -14,7 +14,7 @@
 + (id)sharedInstance {
 	NSAssert(NO, @"Override me %s", __PRETTY_FUNCTION__);
 /*
-	static id obj = nil;
+	__strong static id obj = nil;
 	if (!obj) {
 		obj = [[[self class] alloc] init];
 	}
