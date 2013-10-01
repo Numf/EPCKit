@@ -59,6 +59,11 @@
 - (UIImage*)cachedImageForURL:(NSURL*)url;
 
 /*
+ Cancel the request without calling delegates.
+ */
+- (void)cancel;
+
+/*
  Retry last URL.
  */
 - (BOOL)retry;
@@ -117,10 +122,14 @@
 
 
 
-@interface GrabImageOperation : NSOperation
+@interface GrabImageOperation : NSOperation <NSURLConnectionDelegate,NSURLConnectionDataDelegate> {
+	NSMutableData *_receivedData;
+	BOOL isDone;
+}
 +(GrabImageOperation*)grabImageOperationWithURL:(NSURL*)url epcImageView:(EPCImageView*)epcImageView;
 @property (nonatomic, strong) NSURL *url;
 @property (nonatomic, weak) EPCImageView *epcImageView;
 @property (nonatomic, strong) UIImage *grabbedImage;
 @property (nonatomic, strong) NSData *downloadedData;
+@property (nonatomic, strong) NSURLConnection *urlConnection;
 @end
