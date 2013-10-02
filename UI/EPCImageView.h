@@ -124,7 +124,7 @@
 
 @interface GrabImageOperation : NSOperation <NSURLConnectionDelegate,NSURLConnectionDataDelegate> {
 	NSMutableData *_receivedData;
-	BOOL isDone;
+	BOOL _isDone;
 }
 +(GrabImageOperation*)grabImageOperationWithURL:(NSURL*)url epcImageView:(EPCImageView*)epcImageView;
 @property (nonatomic, strong) NSURL *url;

@@ -68,11 +68,19 @@
 	if (!imageCacheIsDefault)
 		self.imageCache = nil;
 	
-	[operationQueue cancelAllOperations];
+	[self cancelMyOperationsInMainQueue];
+}
+
+-(void)cancelMyOperationsInMainQueue {
+	for (NSOperation* o in [[NSOperationQueue mainQueue] operations]) {
+        if ([o isKindOfClass:[GrabImageOperation class]]) {
+            [o cancel];
+        }
+	}
 }
 
 - (void)cancel {
-	[operationQueue cancelAllOperations];
+	[self cancelMyOperationsInMainQueue];
 }
 
 -(BOOL)retry {
@@ -92,10 +100,10 @@
 
 	BOOL cancelledARequest = ([operationQueue operationCount] > 0);
 		
-	[operationQueue cancelAllOperations];
+	[self cancelMyOperationsInMainQueue];
 	
 	if (!operationQueue)
-		operationQueue = [NSOperationQueue new];
+		operationQueue = [NSOperationQueue mainQueue];
 	
 	if (cancelledARequest) {
 		[self requestWasCancelledForURL:currentURL];
@@ -230,9 +238,8 @@
 	obj.epcImageView = imgView;
 	return obj;
 }
-- (void)main {
+- (void)start {
 	@try {
-		isDone = NO;
 		
 		[self.urlConnection cancel];
 		self.urlConnection = nil;
@@ -271,7 +278,6 @@
 			if ([self isCancelled])
 				return;
 			self.urlConnection = [[NSURLConnection alloc] initWithRequest:urlRequest delegate:self startImmediately:YES];
-			
 			if ([self isCancelled])
 				return;
 			if (downloadedData) {
@@ -282,9 +288,6 @@
 			[self resolveConnectionResultImageIsFromCache:imageIsFromCache];
 		}
 		
-		while (![self isCancelled] && !isDone) {
-			// Do some work and set isDone to YES when finished
-		}
 	}
 	@catch(NSException *ex) {
 #ifdef DEBUG
@@ -300,12 +303,13 @@
 - (void)cancel {
 	[super cancel];
 	[self.urlConnection cancel];
-	
+	[self setDone];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	DLog(@"%s", __PRETTY_FUNCTION__);
 	_receivedData = nil;
+	[self resolveConnectionResultImageIsFromCache:NO];
 }
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data{
 	DLog(@"%s", __PRETTY_FUNCTION__);
@@ -317,6 +321,7 @@
 -(void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	DLog(@"%s", __PRETTY_FUNCTION__);
 	self.downloadedData = _receivedData;
+	[self resolveConnectionResultImageIsFromCache:NO];
 }
 
 - (void)resolveConnectionResultImageIsFromCache:(BOOL)imageIsFromCache {
@@ -353,7 +358,25 @@
 		// failed
 		[self.epcImageView performSelectorOnMainThread:@selector(noImageFromOperation:) withObject:self waitUntilDone:YES];
 	}
-	isDone = YES;
+	[self setDone];
+}
+
+- (BOOL)isExecuting {
+	return !_isDone;
+}
+
+- (void)setDone {
+	[self willChangeValueForKey:@"isFinished"];
+	_isDone = YES;
+	[self didChangeValueForKey:@"isFinished"];
+}
+
+- (BOOL)isFinished {
+	return _isDone;
+}
+
+-(BOOL)isConcurrent {
+	return YES;
 }
 
 @end
