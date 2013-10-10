@@ -13,7 +13,8 @@
 /*
  isFromCache can either be from EPCImageView cache or because you gave an UIImage in epcImageView:imageForURL:.
  */
-- (void)epcImageView:(EPCImageView*)epcImageView isShowingImage:(UIImage*)image fromURL:(NSURL*)url isFromCache:(BOOL)isFromCache data:(NSData*)data;
+- (void)epcImageView:(EPCImageView*)epcImageView isShowingImage:(UIImage*)image fromURL:(NSURL*)url isFromCache:(BOOL)isFromCache;
+
 /*
  When EPCImageView fails to load given URL.
  */
@@ -27,7 +28,7 @@
 /*
  When the internet request finishes.
  */
-- (void)epcImageView:(EPCImageView*)epcImageView finishedRequestForURL:(NSURL *)url wasCancelled:(BOOL)cancelled;
+- (void)epcImageView:(EPCImageView*)epcImageView finishedRequestForURL:(NSURL *)url;
 
 /*
  You can provide an UIImage for a given URL. This will be handle as cache and will prevent the request.
@@ -39,10 +40,6 @@
  */
 - (BOOL)epcImageView:(EPCImageView*)epcImageView shouldHandleImageForURL:(NSURL*)url;
 
-/*
- You can provide a frame for the default UIActivityIndicatorView.
- */
-- (CGRect)epcImageView:(EPCImageView*)epcImageView frameForActivityIndicatorView:(UIActivityIndicatorView*)activityIndicatorView;
 @end
 
 
@@ -118,18 +115,4 @@
  */
 @property (nonatomic, readwrite) BOOL dontCachesImages;
 
-@end
-
-
-
-@interface GrabImageOperation : NSOperation <NSURLConnectionDelegate,NSURLConnectionDataDelegate> {
-	NSMutableData *_receivedData;
-	BOOL _isDone;
-}
-+(GrabImageOperation*)grabImageOperationWithURL:(NSURL*)url epcImageView:(EPCImageView*)epcImageView;
-@property (nonatomic, strong) NSURL *url;
-@property (nonatomic, weak) EPCImageView *epcImageView;
-@property (nonatomic, strong) UIImage *grabbedImage;
-@property (nonatomic, strong) NSData *downloadedData;
-@property (nonatomic, strong) NSURLConnection *urlConnection;
 @end
