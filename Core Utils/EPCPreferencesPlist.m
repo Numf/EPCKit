@@ -65,13 +65,15 @@
 - (void)save {
 	
 	if (_preferences) {
-		if ([self hasChanges]) {
+		if (!self.trackChanges || [self hasChanges]) {
 			
 			_changes = 0;
 			_beforeChangesPreferences = nil;
 			[self willChangeValueForKey:@"preferences"];
 			
-			[_preferences writeToFile:[[self class] preferencesPath] atomically:YES];
+			if(![_preferences writeToFile:[[self class] preferencesPath] atomically:YES]) {
+				DLog(@"ERROR WRITING PREFERENCES TO FILE");
+			}
 			
 			[self didChangeValueForKey:@"preferences"];
 			
