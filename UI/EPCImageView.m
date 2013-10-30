@@ -176,17 +176,16 @@
 
 
 - (void)noImageFromURL:(NSURL*)url {
-	dispatch_sync(dispatch_get_main_queue(), ^{
-		if (url == currentURL) {
-			[actView stopAnimating];
-			[self setImage:nil];
-			if ([self.delegate respondsToSelector:@selector(epcImageView:failedLoadingURL:)]) {
-				[self.delegate epcImageView:self failedLoadingURL:currentURL];
-			}
-			_receivedData = nil;
-			_urlConnection = nil;
-		}
-	});
+    assert([NSThread isMainThread]);
+    if (url == currentURL) {
+        [actView stopAnimating];
+        [self setImage:nil];
+        if ([self.delegate respondsToSelector:@selector(epcImageView:failedLoadingURL:)]) {
+            [self.delegate epcImageView:self failedLoadingURL:currentURL];
+        }
+        _receivedData = nil;
+        _urlConnection = nil;
+    }
 }
 
 - (void)requestWillStartWithURL:(NSURL*)url {
