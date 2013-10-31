@@ -16,4 +16,8 @@
 
 - (MKMapRect)mapRectForRect:(CGRect)rect toCoordinateFromView:(UIView*)view;
 
+- (NSArray*)annotationsExceptUserLocation;
+
+- (NSArray*)annotationsThatArentInMapView:(NSArray*)annots;
+
 @end

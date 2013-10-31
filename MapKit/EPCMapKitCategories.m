@@ -94,5 +94,11 @@
     MKMapPoint bottomrightpoint = MKMapPointForCoordinate(bottomeright);
 	
     return MKMapRectMake(topleftpoint.x, topleftpoint.y, bottomrightpoint.x - topleftpoint.x, bottomrightpoint.y - topleftpoint.y);
-}	
+}
+-(NSArray *)annotationsExceptUserLocation {
+	return [[self annotations] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (class == %@)", [MKUserLocation class]]];
+}
+- (NSArray*)annotationsThatArentInMapView:(NSArray*)annots {
+	return [annots filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (SELF IN %@)", self.annotations]];
+}
 @end
