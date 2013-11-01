@@ -109,7 +109,7 @@
 
 
 - (NSDictionary *)preferences {
-	return [[NSDictionary alloc] initWithDictionary:_preferences copyItems:YES];
+	return [[NSDictionary alloc] initWithDictionary:[self preferencesDictionary] copyItems:YES];
 }
 
 @end
