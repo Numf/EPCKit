@@ -30,8 +30,6 @@
 		[btn removeObserver:self forKeyPath:@"selected"];
 	}
 	self.buttons = nil;
-	
-    [super dealloc];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context

@@ -29,7 +29,6 @@
 {
     self.delegate = nil;
 	pvtScrollView.delegate = nil;
-    [super dealloc];
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -73,7 +72,6 @@
 	pvtScrollView.maximumZoomScale = maximumZoomScale;
 	pvtScrollView.minimumZoomScale = minimumZoomScale;
 	[self insertSubview:pvtScrollView atIndex:0];
-	[pvtScrollView release];
 	
 	if (numberOfPages > 0)
 		[self loadContentsForPage:0];
@@ -95,7 +93,6 @@
 }
 
 - (void)loadContentsForPageThread:(NSNumber*)pageObj {
-	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	
 	int page = [pageObj intValue];
 	
@@ -134,7 +131,6 @@
 		[self unloadWithPage:page isAutoUnload:YES];
 	}
 	
-	[pool drain];
 }
 
 - (void)addSubviews:(NSArray*)viewsToAdd {
@@ -225,10 +221,8 @@
 }
 
 - (void)unloadAllButNearPagesThread:(NSNumber*)pageObj {
-	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	int page = [pageObj integerValue];
 	[self unloadWithPage:page isAutoUnload:NO];
-	[pool drain];
 }
 
 - (void)unloadWithPage:(int)page isAutoUnload:(BOOL)isAutoUnload {
@@ -364,7 +358,6 @@
 		doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
 		[doubleTapGesture setNumberOfTapsRequired:2];
 		[pvtScrollView addGestureRecognizer:doubleTapGesture];
-		[doubleTapGesture release];
 	}
 	else if (!doubleTapToZoom && doubleTapGesture && pvtScrollView) {
 		[pvtScrollView removeGestureRecognizer:doubleTapGesture];

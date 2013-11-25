@@ -15,9 +15,6 @@
 - (void)dealloc {
     for (UIView *vv in self.subviews)
 		[vv removeFromSuperview];
-	if (pushedViewControllers)
-		[pushedViewControllers release];
-    [super dealloc];
 }
 
 - (void)popAnimated {
@@ -30,7 +27,7 @@
 
 - (void)removeAllViewControllersAnimated:(BOOL)animated {
 	
-	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
+	UIViewController *fromViewController = [pushedViewControllers lastObject];
 	
 	[pushedViewControllers removeAllObjects];
 	
@@ -60,10 +57,10 @@
 -(void)pushNewRootViewController:(UIViewController *)newViewController animated:(BOOL)animated {
 	NSAssert((newViewController != nil), @"Trying to push nil");
 	
-	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
+	UIViewController *fromViewController = [pushedViewControllers lastObject];
 	
 	if (!pushedViewControllers)
-		pushedViewControllers = [[NSMutableArray array] retain];
+		pushedViewControllers = [NSMutableArray array];
     
     [pushedViewControllers removeAllObjects];
 	[pushedViewControllers addObject:newViewController];
@@ -133,10 +130,10 @@
 -(void)pushViewController:(UIViewController *)newViewController animated:(BOOL)animated {
 	NSAssert((newViewController != nil), @"Trying to push nil");
     
-	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
+	UIViewController *fromViewController = [pushedViewControllers lastObject];
 	
 	if (!pushedViewControllers)
-		pushedViewControllers = [[NSMutableArray array] retain];
+		pushedViewControllers = [NSMutableArray array];
     
 	[pushedViewControllers addObject:newViewController];
     
@@ -185,7 +182,7 @@
 
 - (void)popToViewController:(UIViewController *)toViewController animated:(BOOL)animated {
 	
-	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
+	UIViewController *fromViewController = [pushedViewControllers lastObject];
 	
 	if (![pushedViewControllers containsObject:toViewController])
 		[NSException raise:@"Exception!" format:@"Trying to pop a view that wasn't push in the container."];
@@ -242,7 +239,7 @@
 {
 	assert([pushedViewControllers count] > 0);
 	
-	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
+	UIViewController *fromViewController = [pushedViewControllers lastObject];
 	
 	[pushedViewControllers removeLastObject];
 	UIViewController *toViewController = [pushedViewControllers lastObject];
@@ -296,7 +293,7 @@
 		return;
 	}
 	
-	UIViewController *fromViewController = [[[pushedViewControllers lastObject] retain] autorelease];
+	UIViewController *fromViewController = [pushedViewControllers lastObject];
 	
 	while ([pushedViewControllers count] > 1)
 		[pushedViewControllers removeLastObject];

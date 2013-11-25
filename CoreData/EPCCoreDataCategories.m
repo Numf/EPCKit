@@ -78,7 +78,6 @@
 		DLog(@"%@", ex);
 		return nil;
 	}
-	[request release];
     if (error != nil && excep == NO)
     {
 		DLog(@"%@", error);

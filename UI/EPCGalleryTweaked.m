@@ -30,7 +30,6 @@
 {
     self.delegate = nil;
 	pvtScrollView.delegate = nil;
-    [super dealloc];
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -78,7 +77,6 @@
 	[pvtScrollView setContentSize:CGSizeMake(numberOfPages*pvtScrollView.frame.size.width, pvtScrollView.frame.size.height)];
 	
 	[self insertSubview:pvtScrollView atIndex:0];
-	[pvtScrollView release];
 	
 	if (numberOfPages > 0)
 		[self loadContentsForPage:0];
@@ -98,7 +96,6 @@
 }
 
 - (void)loadContentsForPageThread:(NSNumber*)pageObj {
-	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	
 	int page = [pageObj intValue];
 	
@@ -137,7 +134,6 @@
 		[self unloadWithPage:page isAutoUnload:YES];
 	}
 	
-	[pool drain];
 }
 
 - (void)addSubviews:(NSArray*)viewsToAdd {
@@ -174,7 +170,7 @@
 	EPCScrollViewDoubleTap *sv = nil;
 	
 	if (_zoomIsEnabled) {
-		sv = [[[EPCScrollViewDoubleTap alloc] initWithFrame:self.frame] autorelease];
+		sv = [[EPCScrollViewDoubleTap alloc] initWithFrame:self.frame];
 		[sv addSubview:view];
 		sv.maximumZoomScale = maximumZoomScale;
 		sv.minimumZoomScale = minimumZoomScale;
@@ -265,10 +261,8 @@
 }
 
 - (void)unloadAllButNearPagesThread:(NSNumber*)pageObj {
-	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	int page = [pageObj integerValue];
 	[self unloadWithPage:page isAutoUnload:NO];
-	[pool drain];
 }
 
 - (void)unloadWithPage:(int)page isAutoUnload:(BOOL)isAutoUnload {

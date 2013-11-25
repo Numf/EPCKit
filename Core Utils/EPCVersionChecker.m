@@ -37,7 +37,6 @@ static id myself = nil;
 		[[NSUserDefaults standardUserDefaults] synchronize];
 	}
 	[[NSNotificationCenter defaultCenter] removeObserver:myself name:UIApplicationDidBecomeActiveNotification object:nil];
-	[myself release];
 	myself = nil;
 }
 

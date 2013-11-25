@@ -14,9 +14,9 @@
 #pragma mark - Avaliability
 
 + (BOOL)canAccessTwitter {
-	ACAccountStore *accountStore = [[[ACAccountStore alloc] init] autorelease];
+	ACAccountStore *accountStore = [[ACAccountStore alloc] init];
 	ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierTwitter];
-	ACAccount *account = [[[ACAccount alloc] initWithAccountType:accountType] autorelease];
+	ACAccount *account = [[ACAccount alloc] initWithAccountType:accountType];
 	return account.username != nil;
 }
 
@@ -24,9 +24,9 @@
 	if (IOS_VERSION_LESS_THAN(@"6.0")) {
 		return [[FBSession activeSession] isOpen];
 	}
-	ACAccountStore *accountStore = [[[ACAccountStore alloc] init] autorelease];
+	ACAccountStore *accountStore = [[ACAccountStore alloc] init];
 	ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:ACAccountTypeIdentifierFacebook];
-	ACAccount *account = [[[ACAccount alloc] initWithAccountType:accountType] autorelease];
+	ACAccount *account = [[ACAccount alloc] initWithAccountType:accountType];
 	return account.username != nil;
 }
 
@@ -143,14 +143,12 @@
 	
 	ACAccountStore *accountStore = [[ACAccountStore alloc] init];
 	
-    ACAccountType *accountType = [[accountStore accountTypeWithAccountTypeIdentifier:identifier] retain];
+    ACAccountType *accountType = [accountStore accountTypeWithAccountTypeIdentifier:identifier];
 	
 	if (IOS_VERSION_LESS_THAN(@"6.0")) {
 		[accountStore requestAccessToAccountsWithType:accountType withCompletionHandler:^(BOOL granted, NSError *error) {
 			handler(granted, error, accountStore);
-			
-			[accountStore release];
-			[accountType release];
+		
 		}];
 	}
 	else {
@@ -173,8 +171,6 @@
 					if (handler != nil) {
 						handler(success, error, accountStore);
 					}
-					[accountStore release];
-					[accountType release];
 				}];
 				
 			}
@@ -188,16 +184,12 @@
 							if (handler != nil) {
 								handler(success, error, accountStore);
 							}
-							[accountStore release];
-							[accountType release];
 						}];
 					}
 					else {
 						if (handler != nil) {
 							handler(success, error, accountStore);
 						}
-						[accountStore release];
-						[accountType release];
 					}
 				}];
 			}
@@ -211,8 +203,6 @@
 				if (handler != nil) {
 					handler(granted, error, accountStore);
 				}
-				[accountStore release];
-				[accountType release];
 			}];
 		}
 	}
@@ -286,7 +276,7 @@
 #pragma mark - Share Content
 
 + (void)shareForServiceType:(NSString *)serviceType text:(NSString *)text image:(UIImage *)image url:(NSURL *)url viewController:(UIViewController *)viewController completionHandler:(EPCSocialHandler)handler {
-	SLComposeViewController *mySLComposerSheet = [SLComposeViewController composeViewControllerForServiceType:serviceType];
+	__block __weak SLComposeViewController *mySLComposerSheet = [SLComposeViewController composeViewControllerForServiceType:serviceType];
 	
 	if (text) {
 		[mySLComposerSheet setInitialText:text];
@@ -364,7 +354,6 @@
 			[tweet setInitialText:text];
 		}
 		[viewController presentViewController:tweet animated:YES completion:nil];
-		[tweet release];
 		
 		if (handler != nil) {
 			handler(YES, nil, nil);

@@ -14,7 +14,6 @@
 {
     self.dataObject = nil;
 	epcImageView.delegate = nil;
-    [super dealloc];
 }
 
 - (EPCImageView *)epcImageView {
@@ -22,7 +21,6 @@
 		epcImageView = [[EPCImageView alloc] initWithFrame:self.bounds];
 		epcImageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		[self insertSubview:epcImageView atIndex:0];
-		[epcImageView release];
 	}
 	return epcImageView;
 }

@@ -17,7 +17,6 @@
 {
     self.doubleTapToZoom = NO;
 	self.delegate = nil;
-    [super dealloc];
 }
 - (BOOL)doubleTapToZoom {
 	return _doubleTapToZoom;
@@ -28,7 +27,6 @@
 		_doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
 		[_doubleTapGesture setNumberOfTapsRequired:2];
 		[self addGestureRecognizer:_doubleTapGesture];
-		[_doubleTapGesture release];
 	}
 	else if (!_doubleTapToZoom && _doubleTapGesture) {
 		[self removeGestureRecognizer:_doubleTapGesture];
