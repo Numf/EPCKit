@@ -466,9 +466,21 @@ static __weak id currentFirstResponder;
 @end
 
 @implementation UIScrollView (EPCCategories)
+
 - (void)scrollToBottomAnimated:(BOOL)animated {
 	CGPoint bottomOffset = CGPointMake(0, self.contentSize.height - self.bounds.size.height);
 	[self setContentOffset:bottomOffset animated:animated];
+}
+
+-(void)contentSizeFit {
+	int w = 0, h = 0;
+	for (UIView *v in self.subviews) {
+		int nw = v.frameX + v.frameWidth;
+		int nh = v.frameY + v.frameHeight;
+		w = MAX(w, nw);
+		h = MAX(h, nh);
+	}
+	[self setContentSize:CGSizeMake(w, h)];
 }
 @end
 

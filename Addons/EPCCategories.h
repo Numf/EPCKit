@@ -66,6 +66,10 @@
 
 @interface UIScrollView (EPCCategories)
 - (void)scrollToBottomAnimated:(BOOL)animated;
+/**
+ Fits the contentSize to it's subviews content.
+ */
+- (void)contentSizeFit;
 @end
 
 #else
